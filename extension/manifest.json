@@ -1,41 +1,41 @@
 {
   "manifest_version": 3,
   "name": "Baekjoon Solve Timer",
-  "version": "0.1.0",
-  "description": "백준 문제 풀이 시간 자동 측정 및 완료시 알림 표시",
+  "version": "1.0",
+  "description": "백준 문제 풀이 시간을 측정하고 Solta에 기록하는 확장 프로그램",
   "permissions": [
     "storage",
     "notifications",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "https://www.acmicpc.net/*",
-    "https://solved.ac/*"
+    "https://solved.ac/*",
+    "http://localhost:8080/*",
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.acmicpc.net/problem/*"
-      ],
-      "js": ["content_problem.js"],
-      "run_at": "document_idle"
+      "matches": ["https://www.acmicpc.net/problem/*"],
+      "js": ["content_problem.js"]
     },
     {
-      "matches": [
-        "https://www.acmicpc.net/status*"
-      ],
-      "js": ["content_status.js"],
-      "run_at": "document_idle"
+      "matches": ["https://www.acmicpc.net/status*"],
+      "js": ["content_status.js"]
     }
   ],
   "icons": {
     "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
     "48": "images/icon-48.png",
     "128": "images/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Baekjoon Solve Timer"
   }
 } 

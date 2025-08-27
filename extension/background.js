@@ -22,18 +22,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			const timer = timers[problemId];
 			if (timer && timer.running) {
 				const elapsedMs = Date.now() - timer.startedAtMs;
-				// Fetch metadata, then notify
-				fetchProblemMeta(problemId).then((meta) => {
-					const text = buildRecordText(meta, timer.title, elapsedMs);
-					showSolvedNotification(text);
-					// Mark timer stopped
-					timer.running = false;
-					persistTimers();
-				}).catch(() => {
-					const text = buildRecordText({}, timer.title, elapsedMs);
-					showSolvedNotification(text);
-					timer.running = false;
-					persistTimers();
+				// Mark timer stopped first
+				timer.running = false;
+				persistTimers();
+				
+				// Send message to content script to show modal
+				chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+					if (tabs[0]) {
+						chrome.tabs.sendMessage(tabs[0].id, {
+							type: 'SHOW_SOLVED_MODAL',
+							payload: {
+								problemId,
+								title: timer.title,
+								elapsedMs
+							}
+						});
+					}
 				});
 			}
 			break;
@@ -47,10 +51,58 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			}
 			break;
 		}
+		case 'SUBMIT_TO_SERVER': {
+			// CORS 우회를 위해 background script에서 서버 요청 처리
+			const { problemId, userId, solveTimeSeconds } = message.payload;
+			submitToServer(problemId, userId, solveTimeSeconds)
+				.then(success => sendResponse({ success }))
+				.catch(error => sendResponse({ success: false, error: error.message }));
+			return true; // 비동기 응답을 위해 true 반환
+		}
 		default:
 			break;
 	}
 });
+
+async function submitToServer(problemId, userId, solveTimeSeconds) {
+	// 저장된 서버 URL 사용
+	const serverUrl = await getStoredServerUrl();
+	if (!serverUrl) {
+		throw new Error('서버 URL이 설정되지 않았습니다.');
+	}
+	
+	try {
+		const response = await fetch(`${serverUrl}/api/solveds`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				bojId: userId,
+				bojProblemId: parseInt(problemId),
+				solveTimeSeconds: solveTimeSeconds
+			})
+		});
+		
+		if (response.ok) {
+			return true;
+		} else {
+			const errorData = await response.json();
+			throw new Error(errorData.message || `HTTP ${response.status}`);
+		}
+	} catch (error) {
+		console.error('Server submission error:', error);
+		throw error;
+	}
+}
+
+async function getStoredServerUrl() {
+	return new Promise((resolve) => {
+		chrome.storage.local.get(['server_url'], (data) => {
+			resolve(data?.server_url || null);
+		});
+	});
+}
 
 function persistTimers() {
 	chrome.storage.local.set({ bj_solve_timers: timers });
