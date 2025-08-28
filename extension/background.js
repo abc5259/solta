@@ -1,6 +1,14 @@
 // Timer state: { [problemId]: { startedAtMs: number, running: boolean, title?: string, tier?: string, tags?: string[] } }
 const timers = {};
 
+// Ensure timers are restored whenever the service worker starts up (MV3 may unload frequently)
+(function restoreOnStartupImmediate() {
+	chrome.storage.local.get(['bj_solve_timers'], (data) => {
+		const saved = data?.bj_solve_timers || {};
+		Object.assign(timers, saved);
+	});
+})();
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (!message || !message.type) return;
 
@@ -44,12 +52,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		}
 		case 'GET_TIMER_STATE': {
 			const { problemId } = message.payload || {};
-			if (problemId && timers[problemId]) {
-				sendResponse({ running: timers[problemId].running, startedAtMs: timers[problemId].startedAtMs });
-			} else {
+			// If we don't have it in memory (service worker may have been unloaded), try restoring from storage
+			if (!problemId) {
 				sendResponse({ running: false });
+				break;
 			}
-			break;
+			if (timers[problemId]) {
+				sendResponse({ running: timers[problemId].running, startedAtMs: timers[problemId].startedAtMs });
+				break;
+			}
+			chrome.storage.local.get(['bj_solve_timers'], (data) => {
+				const saved = data?.bj_solve_timers || {};
+				Object.assign(timers, saved);
+				if (timers[problemId]) {
+					sendResponse({ running: timers[problemId].running, startedAtMs: timers[problemId].startedAtMs });
+				} else {
+					sendResponse({ running: false });
+				}
+			});
+			return true; // async sendResponse
 		}
 		case 'SUBMIT_TO_SERVER': {
 			// CORS 우회를 위해 background script에서 서버 요청 처리
