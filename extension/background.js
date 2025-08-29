@@ -74,8 +74,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		}
 		case 'SUBMIT_TO_SERVER': {
 			// CORS 우회를 위해 background script에서 서버 요청 처리
-			const { problemId, userId, solveTimeSeconds } = message.payload;
-			submitToServer(problemId, userId, solveTimeSeconds)
+			const { problemId, userId, solveTimeSeconds, solveType } = message.payload;
+			submitToServer(problemId, userId, solveTimeSeconds, solveType)
 				.then(success => sendResponse({ success }))
 				.catch(error => sendResponse({ success: false, error: error.message }));
 			return true; // 비동기 응답을 위해 true 반환
@@ -85,7 +85,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	}
 });
 
-async function submitToServer(problemId, userId, solveTimeSeconds) {
+async function submitToServer(problemId, userId, solveTimeSeconds, solveType) {
 	// 저장된 서버 URL 사용
 	const serverUrl = await getStoredServerUrl();
 	if (!serverUrl) {
@@ -100,6 +100,7 @@ async function submitToServer(problemId, userId, solveTimeSeconds) {
 			},
 			body: JSON.stringify({
 				bojId: userId,
+				solveType: solveType || 'SELF',
 				bojProblemId: parseInt(problemId),
 				solveTimeSeconds: solveTimeSeconds
 			})

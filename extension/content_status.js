@@ -190,6 +190,13 @@
 					<div class="bjst-problem-title">${bracket}${title || '문제'}</div>
 					<div class="bjst-problem-meta">백준 문제 #${problemId}</div>
 				</div>
+				<div style="margin-bottom: 12px;">
+					<label for="bjst-solve-type" style="display:block; font-size:14px; color:#57606a; margin-bottom:6px;">풀이 방식 선택</label>
+					<select id="bjst-solve-type" style="width:100%; padding:8px 10px; border:1px solid #d0d7de; border-radius:6px; font-size:14px;">
+						<option value="SELF">스스로 풀이</option>
+						<option value="SOLUTION">답지 참고</option>
+					</select>
+				</div>
 				<p>이 문제 풀이 기록을 Solta에 저장하시겠습니까?</p>
 			</div>
 			<div class="bjst-modal-actions">
@@ -225,9 +232,13 @@
 					modal.classList.remove('bjst-loading');
 					return;
 				}
+
+				// Get solve type
+				const solveTypeSelect = overlay.querySelector('#bjst-solve-type');
+				const solveType = (solveTypeSelect && solveTypeSelect.value) || 'SELF';
 				
 				// Submit to server
-				const success = await submitToServer(problemId, userId, Math.floor(elapsedMs / 1000));
+				const success = await submitToServer(problemId, userId, Math.floor(elapsedMs / 1000), solveType);
 				if (success) {
 					alert('성공적으로 저장되었습니다!');
 					closeModal();
@@ -264,7 +275,7 @@
 		});
 	}
 
-	async function submitToServer(problemId, userId, solveTimeSeconds) {
+	async function submitToServer(problemId, userId, solveTimeSeconds, solveType) {
 		// CORS 우회를 위해 background script를 통해 서버에 제출
 		return new Promise((resolve, reject) => {
 			chrome.runtime.sendMessage({
@@ -272,7 +283,8 @@
 				payload: {
 					problemId,
 					userId,
-					solveTimeSeconds
+					solveTimeSeconds,
+					solveType
 				}
 			}, (response) => {
 				if (chrome.runtime.lastError) {
