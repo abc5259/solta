@@ -1,9 +1,9 @@
 import styled from 'styled-components';
+import Header from '../components/Header';
 
 const HomeContainer = styled.div`
 	padding: ${({ theme }) => theme.spacing(6)};
 	width: 100%;
-	margin: 0 auto;
 `;
 
 const Hero = styled.div`
@@ -28,6 +28,9 @@ const CardGrid = styled.div`
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 	gap: ${({ theme }) => theme.spacing(4)};
 	margin-top: ${({ theme }) => theme.spacing(6)};
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
 `;
 
 const Card = styled.div`

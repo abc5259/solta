@@ -160,6 +160,10 @@
 			.bjst-loading .bjst-btn-primary::after {
 				content: ' 제출 중...';
 			}
+			.bjst-radio-group { display:flex; gap:12px; align-items:center; }
+			.bjst-radio { display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+			.bjst-radio input { margin:0; vertical-align: middle; }
+			.bjst-radio span { line-height:1; }
 		`;
 		document.head.appendChild(style);
 	}
@@ -191,11 +195,17 @@
 					<div class="bjst-problem-meta">백준 문제 #${problemId}</div>
 				</div>
 				<div style="margin-bottom: 12px;">
-					<label for="bjst-solve-type" style="display:block; font-size:14px; color:#57606a; margin-bottom:6px;">풀이 방식 선택</label>
-					<select id="bjst-solve-type" style="width:100%; padding:8px 10px; border:1px solid #d0d7de; border-radius:6px; font-size:14px;">
-						<option value="SELF">스스로 풀이</option>
-						<option value="SOLUTION">답지 참고</option>
-					</select>
+					<div style="display:block; font-size:14px; color:#57606a; margin-bottom:6px;">풀이 방식 선택</div>
+					<div id="bjst-solve-type-group" role="radiogroup" aria-label="풀이 방식" class="bjst-radio-group">
+						<label class="bjst-radio">
+							<input type="radio" name="bjst-solve-type" value="SELF" checked>
+							<span>스스로 풀이</span>
+						</label>
+						<label class="bjst-radio">
+							<input type="radio" name="bjst-solve-type" value="SOLUTION">
+							<span>답지 참고</span>
+						</label>
+					</div>
 				</div>
 				<p>이 문제 풀이 기록을 Solta에 저장하시겠습니까?</p>
 			</div>
@@ -234,8 +244,8 @@
 				}
 
 				// Get solve type
-				const solveTypeSelect = overlay.querySelector('#bjst-solve-type');
-				const solveType = (solveTypeSelect && solveTypeSelect.value) || 'SELF';
+				const checkedType = overlay.querySelector('input[name="bjst-solve-type"]:checked');
+				const solveType = (checkedType && checkedType.value) || 'SELF';
 				
 				// Submit to server
 				const success = await submitToServer(problemId, userId, Math.floor(elapsedMs / 1000), solveType);

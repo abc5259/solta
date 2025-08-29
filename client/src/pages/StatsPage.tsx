@@ -2,14 +2,14 @@ import styled from 'styled-components';
 
 const StatsContainer = styled.div`
 	padding: ${({ theme }) => theme.spacing(6)};
-	max-width: 1200px;
-	margin: 0 auto;
+	width: 100%;
 `;
 
 const PageTitle = styled.h1`
 	color: ${({ theme }) => theme.colors.text};
 	margin-bottom: ${({ theme }) => theme.spacing(6)};
 	font-size: 2.5rem;
+	text-align: center;
 `;
 
 const StatsGrid = styled.div`
@@ -17,6 +17,9 @@ const StatsGrid = styled.div`
 	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 	gap: ${({ theme }) => theme.spacing(4)};
 	margin-bottom: ${({ theme }) => theme.spacing(6)};
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
 `;
 
 const StatCard = styled.div`
@@ -41,11 +44,15 @@ const StatLabel = styled.div`
 
 const TierSection = styled.div`
 	margin-top: ${({ theme }) => theme.spacing(6)};
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
 `;
 
 const TierTitle = styled.h2`
 	color: ${({ theme }) => theme.colors.text};
 	margin-bottom: ${({ theme }) => theme.spacing(4)};
+	text-align: center;
 `;
 
 const TierGrid = styled.div`
