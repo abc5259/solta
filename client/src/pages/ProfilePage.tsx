@@ -1,64 +1,110 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { SolvedList } from "../components/SolvedList/SolvedList";
+import { Trophy, Clock, Target } from "lucide-react";
 
 const ProfileContainer = styled.div`
   padding: ${({ theme }) => theme.spacing(6)};
   width: 100%;
-  // background: ;
   min-height: 100vh;
-  color: white;
+  background: ${({ theme }) => theme.colors.bgSecondary};
 `;
 
 const UserSection = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  background: #16213e;
+  background: ${({ theme }) => theme.colors.bg};
   border-radius: 16px;
   padding: ${({ theme }) => theme.spacing(6)};
-  box-shadow: ${({ theme }) => theme.shadows.md};
-  margin-bottom: ${({ theme }) => theme.spacing(6)};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  margin-bottom: ${({ theme }) => theme.spacing(4)};
 `;
 
 const UserInfo = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing(4)};
-  margin-bottom: ${({ theme }) => theme.spacing(4)};
 `;
 
 const UserIcon = styled.div`
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  width: 72px;
+  height: 72px;
+  background: #9333ea;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: white;
-  font-weight: bold;
+  font-weight: 700;
+  flex-shrink: 0;
 `;
 
 const UserDetails = styled.div`
   flex: 1;
 `;
 
+const UserHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing(2)};
+  margin-bottom: ${({ theme }) => theme.spacing(2)};
+`;
+
 const UserId = styled.h1`
-  font-size: 2rem;
-  color: white;
-  margin: 0 0 ${({ theme }) => theme.spacing(2)} 0;
+  font-size: 1.875rem;
+  color: ${({ theme }) => theme.colors.text};
+  margin: 0;
+  font-weight: 700;
 `;
 
 const UserStats = styled.div`
-  color: white;
-  font-size: 1rem;
-  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  line-height: 1.5;
 `;
 
 const StatHighlight = styled.span`
-  font-weight: bold;
-  color: #4ade80;
+  font-weight: 700;
+  color: #9333ea;
+`;
+
+const StatsCards = styled.div`
+  max-width: 1200px;
+  margin: 0 auto ${({ theme }) => theme.spacing(4)} auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ${({ theme }) => theme.spacing(4)};
+`;
+
+const StatCard = styled.div`
+  background: ${({ theme }) => theme.colors.bg};
+  border-radius: 16px;
+  padding: ${({ theme }) => theme.spacing(5)};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  position: relative;
+`;
+
+const StatCardTitle = styled.div`
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  margin-bottom: ${({ theme }) => theme.spacing(3)};
+`;
+
+const StatCardValue = styled.div`
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const StatCardIcon = styled.div`
+  position: absolute;
+  top: ${({ theme }) => theme.spacing(5)};
+  right: ${({ theme }) => theme.spacing(5)};
+  color: ${({ theme }) => theme.colors.textMuted};
 `;
 
 const DifficultySection = styled.div`
@@ -185,45 +231,170 @@ const TierName = styled.span<{ tier: string }>`
   }};
 `;
 
-const SubTierGrid = styled.div<{ isVisible: boolean }>`
-  display: ${({ isVisible }) => (isVisible ? "grid" : "none")};
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: ${({ theme }) => theme.spacing(2)};
-  margin-top: ${({ theme }) => theme.spacing(3)};
-  animation: ${({ isVisible }) => (isVisible ? "slideDown 0.3s ease" : "none")};
 
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+const TabSection = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  background: ${({ theme }) => theme.colors.bg};
+  border-radius: 16px;
+  padding: ${({ theme }) => theme.spacing(6)};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+`;
+
+const TabHeader = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing(2)};
+  margin-bottom: ${({ theme }) => theme.spacing(4)};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.borderLight};
+`;
+
+const TabButton = styled.button<{ active: boolean }>`
+  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(4)};
+  background: none;
+  border: none;
+  border-bottom: 3px solid ${({ active }) => (active ? "#9333ea" : "transparent")};
+  color: ${({ active, theme }) => (active ? "#9333ea" : theme.colors.textSecondary)};
+  font-size: 1rem;
+  font-weight: ${({ active }) => (active ? "700" : "500")};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: -2px;
+
+  &:hover {
+    color: ${({ active }) => (active ? "#9333ea" : "#000")};
   }
 `;
 
-const SubTierItem = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: ${({ theme }) => theme.spacing(2)};
-  font-size: 0.9rem;
-  text-align: center;
+const TabContent = styled.div`
+  min-height: 400px;
+`;
+
+const TierStatsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing(5)};
+`;
+
+const TierGroupSection = styled.div`
+  background: ${({ theme }) => theme.colors.bg};
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 16px;
+  padding: ${({ theme }) => theme.spacing(5)};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
+`;
+
+const TierGroupHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing(3)};
+  margin-bottom: ${({ theme }) => theme.spacing(4)};
+  padding-bottom: ${({ theme }) => theme.spacing(3)};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.borderLight};
+`;
+
+const TierGroupBadge = styled.span<{ tier: string }>`
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: white;
+  background: ${({ tier }) => {
+    switch (tier.toLowerCase()) {
+      case "bronze": return "#cd7f32";
+      case "silver": return "#9ca3af";
+      case "gold": return "#f59e0b";
+      case "platinum": return "#e5e7eb";
+      case "diamond": return "#60a5fa";
+      case "ruby": return "#f43f5e";
+      default: return "#6b7280";
+    }
+  }};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const TierGroupSummary = styled.div`
+  font-size: 1rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+  
+  span {
+    color: ${({ theme }) => theme.colors.textSecondary};
+    font-weight: 500;
+  }
+`;
+
+const SubTierCards = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: ${({ theme }) => theme.spacing(3)};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+const SubTierCard = styled.div`
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.bgSecondary} 0%, ${({ theme }) => theme.colors.bg} 100%);
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 12px;
+  padding: ${({ theme }) => theme.spacing(4)};
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: ${({ theme }) => theme.colors.border};
+  }
 `;
 
 const SubTierLevel = styled.div`
-  font-weight: bold;
-  margin-bottom: ${({ theme }) => theme.spacing(1)};
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: ${({ theme }) => theme.spacing(3)};
+  padding-bottom: ${({ theme }) => theme.spacing(2)};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.borderLight};
+`;
+
+const SubTierInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing(2)};
 `;
 
 const SubTierCount = styled.div`
-  font-size: 0.8rem;
-  opacity: 0.8;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+  
+  span {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
 `;
 
+const SubTierTime = styled.div`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+function formatTime(minutes: number, seconds: number): string {
+  return `${minutes}m ${seconds}s`;
+}
+
 export function ProfilePage() {
-  const [showDetails, setShowDetails] = useState(false);
+  const [activeTab, setActiveTab] = useState<"recent" | "tier">("recent");
 
   const solveds = [
     {
@@ -235,8 +406,10 @@ export function ProfilePage() {
         bojProblemId: 9440,
         title: "숫자 더하기",
         tier: "S2",
+        tags: ["수학", "구현"],
       },
       averageTime: 1865.0,
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       solvedId: 6,
@@ -247,8 +420,10 @@ export function ProfilePage() {
         bojProblemId: 12100,
         title: "2048 (Easy)",
         tier: "G1",
+        tags: ["구현", "시뮬레이션"],
       },
       averageTime: 27.5,
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       solvedId: 5,
@@ -259,8 +434,10 @@ export function ProfilePage() {
         bojProblemId: 12100,
         title: "2048 (Easy)",
         tier: "G1",
+        tags: ["구현", "시뮬레이션"],
       },
       averageTime: 27.5,
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       solvedId: 4,
@@ -271,8 +448,10 @@ export function ProfilePage() {
         bojProblemId: 11000,
         title: "강의실 배정",
         tier: "G4",
+        tags: ["그리디", "정렬"],
       },
       averageTime: 17.0,
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       solvedId: 3,
@@ -283,8 +462,10 @@ export function ProfilePage() {
         bojProblemId: 11000,
         title: "강의실 배정",
         tier: "G4",
+        tags: ["그리디", "정렬"],
       },
       averageTime: 17.0,
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       solvedId: 2,
@@ -295,8 +476,10 @@ export function ProfilePage() {
         bojProblemId: 13460,
         title: "구슬 탈출 2",
         tier: "G1",
+        tags: ["BFS", "구현"],
       },
       averageTime: 32.0,
+      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       solvedId: 1,
@@ -307,17 +490,23 @@ export function ProfilePage() {
         bojProblemId: 13460,
         title: "구슬 탈출 2",
         tier: "G1",
+        tags: ["BFS", "구현"],
       },
       averageTime: 32.0,
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ];
 
   // Mock data - 실제로는 API에서 가져올 데이터
   const userData = {
     userId: "dlwogns3413",
-    totalSolved: 754,
-    contributedProblems: 13,
-    rivals: 2,
+    tier: "G2",
+    rating: 1685,
+    totalSolved: 247,
+    totalTimeHours: 234,
+    totalTimeMinutes: 56,
+    averageTimeMinutes: 23,
+    averageTimeSeconds: 12,
   };
 
   const tierStats = [
@@ -329,66 +518,62 @@ export function ProfilePage() {
     { tier: "Ruby", count: 0, percentage: "0.0%" },
   ];
 
-  const detailedStats = [
+  const tierGroupStats = [
     {
       tier: "Bronze",
-      count: 112,
-      percentage: "14.9%",
+      tierName: "브론즈",
+      totalCount: 45,
+      averageMinutes: 8,
+      averageSeconds: 23,
       subTiers: [
-        { level: "B5", count: 15, averageTime: "4분 12초" },
-        { level: "B4", count: 18, averageTime: "5분 8초" },
-        { level: "B3", count: 22, averageTime: "5분 45초" },
-        { level: "B2", count: 25, averageTime: "6분 2초" },
-        { level: "B1", count: 32, averageTime: "5분 30초" },
+        { level: "브1", count: 12, minutes: 6, seconds: 15 },
+        { level: "브2", count: 15, minutes: 7, seconds: 42 },
+        { level: "브3", count: 8, minutes: 9, seconds: 18 },
+        { level: "브4", count: 6, minutes: 10, seconds: 51 },
+        { level: "브5", count: 4, minutes: 12, seconds: 33 },
       ],
     },
     {
       tier: "Silver",
-      count: 241,
-      percentage: "32.0%",
+      tierName: "실버",
+      totalCount: 89,
+      averageMinutes: 18,
+      averageSeconds: 47,
       subTiers: [
-        { level: "S5", count: 28, averageTime: "7분 45초" },
-        { level: "S4", count: 31, averageTime: "8분 12초" },
-        { level: "S3", count: 35, averageTime: "8분 33초" },
-        { level: "S2", count: 42, averageTime: "8분 51초" },
-        { level: "S1", count: 45, averageTime: "8분 28초" },
+        { level: "실1", count: 25, minutes: 15, seconds: 22 },
+        { level: "실2", count: 22, minutes: 17, seconds: 38 },
+        { level: "실3", count: 19, minutes: 19, seconds: 45 },
+        { level: "실4", count: 15, minutes: 21, seconds: 12 },
+        { level: "실5", count: 8, minutes: 23, seconds: 56 },
       ],
     },
     {
       tier: "Gold",
-      count: 369,
-      percentage: "48.9%",
+      tierName: "골드",
+      totalCount: 120,
+      averageMinutes: 25,
+      averageSeconds: 30,
       subTiers: [
-        { level: "G5", count: 45, averageTime: "11분 32초" },
-        { level: "G4", count: 52, averageTime: "12분 18초" },
-        { level: "G3", count: 58, averageTime: "12분 47초" },
-        { level: "G2", count: 64, averageTime: "13분 12초" },
-        { level: "G1", count: 70, averageTime: "13분 28초" },
+        { level: "골1", count: 30, minutes: 22, seconds: 15 },
+        { level: "골2", count: 28, minutes: 24, seconds: 42 },
+        { level: "골3", count: 25, minutes: 26, seconds: 18 },
+        { level: "골4", count: 22, minutes: 27, seconds: 51 },
+        { level: "골5", count: 15, minutes: 29, seconds: 33 },
       ],
     },
     {
       tier: "Platinum",
-      count: 30,
-      percentage: "4.0%",
+      tierName: "플래티넘",
+      totalCount: 30,
+      averageMinutes: 35,
+      averageSeconds: 20,
       subTiers: [
-        { level: "P5", count: 8, averageTime: "23분 45초" },
-        { level: "P4", count: 7, averageTime: "25분 12초" },
-        { level: "P3", count: 6, averageTime: "26분 8초" },
-        { level: "P2", count: 5, averageTime: "27분 15초" },
-        { level: "P1", count: 4, averageTime: "28분 32초" },
+        { level: "플1", count: 8, minutes: 32, seconds: 15 },
+        { level: "플2", count: 7, minutes: 34, seconds: 42 },
+        { level: "플3", count: 6, minutes: 36, seconds: 18 },
+        { level: "플4", count: 5, minutes: 38, seconds: 51 },
+        { level: "플5", count: 4, minutes: 40, seconds: 33 },
       ],
-    },
-    {
-      tier: "Diamond",
-      count: 1,
-      percentage: "0.1%",
-      subTiers: [{ level: "D5", count: 1, averageTime: "45분 12초" }],
-    },
-    {
-      tier: "Ruby",
-      count: 0,
-      percentage: "0.0%",
-      subTiers: [],
     },
   ];
 
@@ -398,122 +583,100 @@ export function ProfilePage() {
         <UserInfo>
           <UserIcon>D</UserIcon>
           <UserDetails>
-            <UserId>{userData.userId}</UserId>
+            <UserHeader>
+              <UserId>{userData.userId}</UserId>
+            </UserHeader>
             <UserStats>
-              <StatHighlight>{userData.totalSolved}</StatHighlight>문제 해결,{" "}
-              <StatHighlight>{userData.contributedProblems}</StatHighlight>
-              문제에 기여, <StatHighlight>{userData.rivals}</StatHighlight>명의
-              라이벌
+              <div>
+                시간기록 문제: <StatHighlight>{userData.totalSolved}개</StatHighlight>
+              </div>
             </UserStats>
           </UserDetails>
         </UserInfo>
       </UserSection>
 
-      <DifficultySection>
-        <SectionHeader>
-          <SectionTitle>난이도 분포</SectionTitle>
-          <DetailButton onClick={() => setShowDetails(!showDetails)}>
-            {showDetails ? "간단히" : "자세히"}
-          </DetailButton>
-        </SectionHeader>
+      <StatsCards>
+        <StatCard>
+          <StatCardIcon>
+            <Trophy size={20} />
+          </StatCardIcon>
+          <StatCardTitle>시간기록한 문제 수</StatCardTitle>
+          <StatCardValue>{userData.totalSolved}개</StatCardValue>
+        </StatCard>
+        <StatCard>
+          <StatCardIcon>
+            <Clock size={20} />
+          </StatCardIcon>
+          <StatCardTitle>총 풀이 시간</StatCardTitle>
+          <StatCardValue>
+            {userData.totalTimeHours}h {userData.totalTimeMinutes}m
+          </StatCardValue>
+        </StatCard>
+        <StatCard>
+          <StatCardIcon>
+            <Target size={20} />
+          </StatCardIcon>
+          <StatCardTitle>전체 문제 평균 시간</StatCardTitle>
+          <StatCardValue>
+            {userData.averageTimeMinutes}m {userData.averageTimeSeconds}s
+          </StatCardValue>
+        </StatCard>
+      </StatsCards>
 
-        <DifficultyContent>
-          <div>
-            <DonutChart />
-          </div>
+      <TabSection>
+        <TabHeader>
+          <TabButton
+            active={activeTab === "recent"}
+            onClick={() => setActiveTab("recent")}
+          >
+            최근 풀이 기록
+          </TabButton>
+          <TabButton
+            active={activeTab === "tier"}
+            onClick={() => setActiveTab("tier")}
+          >
+            티어별 통계
+          </TabButton>
+        </TabHeader>
 
-          <DifficultyTable>
-            <TableHeader>
-              <TableCell>레벨</TableCell>
-              <TableCell>문제</TableCell>
-              <TableCell></TableCell>
-            </TableHeader>
-
-            {tierStats.map(({ tier, count, percentage }) => (
-              <TableRow key={tier}>
-                <TableCell>
-                  <TierName tier={tier}>{tier}</TierName>
-                </TableCell>
-                <TableCell>
-                  <strong>{count}</strong>
-                </TableCell>
-                <TableCell>{percentage}</TableCell>
-              </TableRow>
-            ))}
-          </DifficultyTable>
-        </DifficultyContent>
-
-        {showDetails && (
-          <div style={{ marginTop: "24px" }}>
-            <h3
-              style={{
-                color: "white",
-                marginBottom: "16px",
-                textAlign: "center",
-              }}
-            >
-              세부 레벨별 통계
-            </h3>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                gap: "16px",
-              }}
-            >
-              {detailedStats
-                .filter(stat => stat.count > 0)
-                .map(({ tier, subTiers }) => (
-                  <div
-                    key={tier}
-                    style={{
-                      background: "#0f3460",
-                      borderRadius: "12px",
-                      padding: "16px",
-                      border: "1px solid #533483",
-                    }}
-                  >
-                    <h4
-                      style={{
-                        color: tier === "Gold" ? "#000" : "#fff",
-                        textAlign: "center",
-                        marginBottom: "12px",
-                        background:
-                          tier === "Bronze"
-                            ? "#cd7f32"
-                            : tier === "Silver"
-                            ? "#c0c0c0"
-                            : tier === "Gold"
-                            ? "#ffd700"
-                            : tier === "Platinum"
-                            ? "#e5e4e2"
-                            : tier === "Diamond"
-                            ? "#b9f2ff"
-                            : "#ff006e",
-                        borderRadius: "8px",
-                        padding: "8px",
-                      }}
-                    >
-                      {tier}
-                    </h4>
-                    <SubTierGrid isVisible={true}>
-                      {subTiers.map(
-                        ({ level, count: subCount, averageTime: subAvg }) => (
-                          <SubTierItem key={level}>
-                            <SubTierLevel>{level}</SubTierLevel>
-                            <SubTierCount>{subCount}문제</SubTierCount>
-                            <SubTierCount>{subAvg}</SubTierCount>
-                          </SubTierItem>
-                        )
-                      )}
-                    </SubTierGrid>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-      </DifficultySection>
-      <SolvedList solveds={solveds} />
+        <TabContent>
+          {activeTab === "recent" && <SolvedList solveds={solveds} />}
+          {activeTab === "tier" && (
+            <TierStatsContainer>
+              {tierGroupStats.map((tierGroup) => (
+                <TierGroupSection key={tierGroup.tier}>
+                  <TierGroupHeader>
+                    <TierGroupBadge tier={tierGroup.tier}>
+                      {tierGroup.tierName}
+                    </TierGroupBadge>
+                    <TierGroupSummary>
+                      <span>{tierGroup.totalCount}문제</span> 평균{" "}
+                      {formatTime(tierGroup.averageMinutes, tierGroup.averageSeconds)}
+                    </TierGroupSummary>
+                  </TierGroupHeader>
+                  <SubTierCards>
+                    {tierGroup.subTiers.map((subTier) => (
+                      <SubTierCard key={subTier.level}>
+                        <SubTierLevel>{subTier.level}</SubTierLevel>
+                        <SubTierInfo>
+                          <SubTierCount>
+                            {subTier.count}
+                            <span>문제</span>
+                          </SubTierCount>
+                          <SubTierTime>
+                            <Clock size={14} />
+                            {formatTime(subTier.minutes, subTier.seconds)}
+                          </SubTierTime>
+                        </SubTierInfo>
+                      </SubTierCard>
+                    ))}
+                  </SubTierCards>
+                </TierGroupSection>
+              ))}
+            </TierStatsContainer>
+          )}
+        </TabContent>
+      </TabSection>
     </ProfileContainer>
   );
 }

@@ -1,92 +1,78 @@
 import styled from "styled-components";
 
-export const SolvedsTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-export const SolvedsTableHeader = styled.thead`
-  color: #000;
-`;
-
-export const SolvedsTableBody = styled.tbody`
-  color: #000;
-`;
-
-export const TableHeader = styled.th<{ width?: string }>`
-  padding: 10px 0;
-  text-align: center;
-  width: ${({ width }) => width || "auto"};
-`;
-
-export const TableRow = styled.tr`
-  border-top: 1px solid #dddfe0;
-  border-bottom: 1px solid #dddfe0;
-  text-align: center;
-  font-size: 0.9rem;
-  .problem {
-    display: flex;
-    align-items: center;
-    /* justify-content: center; */
-    gap: 5px;
-  }
-  .solveType {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-  }
-`;
-
-export const TableData = styled.td<{
-  width?: string;
-  align?: "left" | "center" | "right";
-}>`
-  padding: 8px 0;
-  text-align: ${({ align }) => align || "center"};
-  width: ${({ width }) => width || "auto"};
-`;
-
-export const AverageTime = styled.div`
+export const SolvedCardsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  .solve-time {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-  }
-  .avg-time {
-    font-size: 0.75rem;
-    line-height: 1rem;
-    color: #6b7280;
-  }
-  .time-result {
-    font-size: 0.75rem;
-    font-weight: 500;
-    line-height: 1rem;
-    .fast {
-      color: #16a34a; /* 다크 모드 색상 */
-    }
-    .slow {
-      color: #dc2626;
-    }
+  gap: 0;
+`;
+
+export const SolvedCard = styled.div`
+  background: ${({ theme }) => theme.colors.bg};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.borderLight};
+  padding: ${({ theme }) => theme.spacing(4)};
+  
+  &:last-child {
+    border-bottom: none;
   }
 `;
-/**
- * <div className="text-center space-y-1">
-                    <div className="flex items-center justify-center space-x-1 text-sm text-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>{solve.timeSpent}</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">평균: {solve.avgTime}</div>
-                    <div className={`text-xs font-medium ${
-                      solve.comparison.includes('빠름') 
-                        ? 'text-green-600 dark:text-green-400' 
-                        : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {solve.comparison}
-                    </div>
-                  </div>
- */
+
+export const CardContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing(4)};
+`;
+
+export const LeftSection = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const ProblemHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing(2)};
+  margin-bottom: ${({ theme }) => theme.spacing(1)};
+`;
+
+export const ProblemTitle = styled.h3`
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+  line-height: 1.5;
+`;
+
+export const ProblemMeta = styled.div`
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  line-height: 1.4;
+`;
+
+export const RightSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: ${({ theme }) => theme.spacing(2)};
+`;
+
+export const SolveTime = styled.div`
+  font-size: 1rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+export const BadgeGroup = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing(1)};
+`;
+
+export const StatusBadge = styled.span<{ solveType: string }>`
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #d1fae5;
+  color: #059669;
+  white-space: nowrap;
+`;
