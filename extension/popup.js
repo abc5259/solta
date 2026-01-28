@@ -60,8 +60,8 @@ function showLoggedInView(userInfo) {
 
     // 사용자 정보 표시
     userAvatar.src = userInfo.avatarUrl || '';
-    userName.textContent = userInfo.name || userInfo.username || '';
-    userLogin.textContent = '@' + (userInfo.username || '');
+    userName.textContent = userInfo.name || '';
+    userLogin.textContent = '@' + (userInfo.name || '');
 }
 
 // GitHub 로그인 처리
@@ -116,12 +116,7 @@ async function handleGithubLogin() {
                     await chrome.storage.local.set({ access_token: token });
 
                     // 5. 우리 서버 API로 사용자 정보 가져오기
-                    // const userInfo = await fetchUserInfo(token);
-                    const userInfo = {
-                      "name": "John Doe",
-                      "username": "john_doe",
-                      "avatarUrl": "https://github.com/john_doe.png"
-                    }
+                    const userInfo = await fetchUserInfo(token);
 
                     // 6. 사용자 정보 저장
                     await chrome.storage.local.set({ user_info: userInfo });
@@ -166,7 +161,7 @@ function resetLoginButton() {
 
 // 우리 서버 API로 사용자 정보 가져오기
 async function fetchUserInfo(token) {
-    const response = await fetch(`${SERVER_URL}/api/user/me`, {
+    const response = await fetch(`${SERVER_URL}/api/members/me`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
