@@ -6,7 +6,8 @@
   "permissions": [
     "storage",
     "notifications",
-    "activeTab"
+    "activeTab",
+    "identity"
   ],
   "host_permissions": [
     "https://www.acmicpc.net/*",
