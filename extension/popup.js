@@ -1,11 +1,10 @@
+import { fetchWithAuth } from './utils.js';
+
 // DOM 요소
 let loginView, loggedInView, settingsSection;
 let githubLoginBtn, logoutBtn;
 let userAvatar, userName, userLogin;
 let statusDiv;
-
-// 서버 URL (고정)
-const SERVER_URL = 'http://localhost:8080';
 
 document.addEventListener('DOMContentLoaded', function() {
     // DOM 요소 초기화
@@ -30,11 +29,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // 로그인 상태 확인
 async function checkLoginStatus() {
     try {
-        const data = await chrome.storage.local.get(['access_token', 'user_info']);
+        const data = await chrome.storage.local.get(['accessToken', 'userInfo']);
 
-        if (data.access_token && data.user_info) {
+        if (data.accessToken && data.userInfo) {
             // 로그인 상태
-            showLoggedInView(data.user_info);
+            showLoggedInView(data.userInfo);
         } else {
             // 로그아웃 상태
             showLoginView();
@@ -71,7 +70,7 @@ async function handleGithubLogin() {
         githubLoginBtn.textContent = '로그인 중...';
 
         // 1. 서버에서 GitHub OAuth URL 가져오기
-        const response = await fetch(`${SERVER_URL}/api/auth/oauth/github/login?client=EXTENSION`);
+        const response = await fetchWithAuth('/api/auth/oauth/github/login?client=EXTENSION');
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -113,13 +112,13 @@ async function handleGithubLogin() {
                     }
 
                     // 4. 우리 서버의 액세스 토큰 저장
-                    await chrome.storage.local.set({ access_token: token });
+                    await chrome.storage.local.set({ accessToken: token });
 
                     // 5. 우리 서버 API로 사용자 정보 가져오기
                     const userInfo = await fetchUserInfo(token);
 
                     // 6. 사용자 정보 저장
-                    await chrome.storage.local.set({ user_info: userInfo });
+                    await chrome.storage.local.set({ userInfo: userInfo });
 
                     // 7. UI 업데이트
                     showLoggedInView(userInfo);
@@ -161,10 +160,9 @@ function resetLoginButton() {
 
 // 우리 서버 API로 사용자 정보 가져오기
 async function fetchUserInfo(token) {
-    const response = await fetch(`${SERVER_URL}/api/members/me`, {
+    const response = await fetchWithAuth('/api/members/me', {
         headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Authorization': `Bearer ${token}`
         }
     });
 
@@ -179,7 +177,7 @@ async function fetchUserInfo(token) {
 async function handleLogout() {
     try {
         // 저장된 토큰과 사용자 정보 삭제
-        await chrome.storage.local.remove(['access_token', 'user_info']);
+        await chrome.storage.local.remove(['accessToken', 'userInfo']);
 
         // UI 업데이트
         showLoginView();

@@ -1,3 +1,5 @@
+import { fetchWithAuth } from './utils.js';
+
 // Timer state: { [problemId]: { startedAtMs: number, running: boolean, title?: string, tier?: string, tags?: string[] } }
 const timers = {};
 
@@ -74,8 +76,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		}
 		case 'SUBMIT_TO_SERVER': {
 			// CORS 우회를 위해 background script에서 서버 요청 처리
-			const { problemId, userId, solveTimeSeconds, solveType } = message.payload;
-			submitToServer(problemId, userId, solveTimeSeconds, solveType)
+			const { problemId, solveTimeSeconds, solveType } = message.payload;
+			submitToServer(problemId, solveTimeSeconds, solveType)
 				.then(success => sendResponse({ success }))
 				.catch(error => sendResponse({ success: false, error: error.message }));
 			return true; // 비동기 응답을 위해 true 반환
@@ -85,21 +87,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	}
 });
 
-async function submitToServer(problemId, userId, solveTimeSeconds, solveType) {
-	// 저장된 서버 URL 사용
-	const serverUrl = await getStoredServerUrl();
-	if (!serverUrl) {
-		throw new Error('서버 URL이 설정되지 않았습니다.');
-	}
-	
+async function submitToServer(problemId, solveTimeSeconds, solveType) {
 	try {
-		const response = await fetch(`${serverUrl}/api/solveds`, {
+		const response = await fetchWithAuth('/api/solveds', {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
 			body: JSON.stringify({
-				bojId: userId,
 				solveType: solveType || 'SELF',
 				bojProblemId: parseInt(problemId),
 				solveTimeSeconds: solveTimeSeconds

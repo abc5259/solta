@@ -235,20 +235,13 @@
 			modal.classList.add('bjst-loading');
 			
 			try {
-				// Get user ID from current page or storage
-				const userId = getUserIdFromQuery() || await getStoredUserId();
-				if (!userId) {
-					alert('사용자 ID를 찾을 수 없습니다. 백준 로그인 후 다시 시도해주세요.');
-					modal.classList.remove('bjst-loading');
-					return;
-				}
 
 				// Get solve type
 				const checkedType = overlay.querySelector('input[name="bjst-solve-type"]:checked');
 				const solveType = (checkedType && checkedType.value) || 'SELF';
 				
 				// Submit to server
-				const success = await submitToServer(problemId, userId, Math.floor(elapsedMs / 1000), solveType);
+				const success = await submitToServer(problemId, Math.floor(elapsedMs / 1000), solveType);
 				if (success) {
 					alert('성공적으로 저장되었습니다!');
 					closeModal();
@@ -277,22 +270,13 @@
 		return `${s}초`;
 	}
 
-	async function getStoredUserId() {
-		return new Promise((resolve) => {
-			chrome.storage.local.get(['bj_user_id'], (data) => {
-				resolve(data?.bj_user_id || null);
-			});
-		});
-	}
-
-	async function submitToServer(problemId, userId, solveTimeSeconds, solveType) {
+	async function submitToServer(problemId, solveTimeSeconds, solveType) {
 		// CORS 우회를 위해 background script를 통해 서버에 제출
 		return new Promise((resolve, reject) => {
 			chrome.runtime.sendMessage({
 				type: 'SUBMIT_TO_SERVER',
 				payload: {
 					problemId,
-					userId,
 					solveTimeSeconds,
 					solveType
 				}
