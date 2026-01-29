@@ -76,7 +76,7 @@ const TierCard = styled.div<{ tier: string }>`
 	border-radius: 8px;
 	padding: ${({ theme }) => theme.spacing(3)};
 	text-align: center;
-	color: ${({ theme, tier }) => {
+	color: ${({ tier }) => {
 		if (tier.toLowerCase() === 'gold') return '#000';
 		return '#fff';
 	}};

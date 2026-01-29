@@ -1,23 +1,9 @@
 import * as Styled from "./SolvedList.styled";
 import { Tier } from "../Tier/Tier";
-
-type Solved = {
-  solvedId: number;
-  solveType: string;
-  solveTimeSeconds: number;
-  problem: {
-    problemId: number;
-    bojProblemId: number;
-    title: string;
-    tier: string;
-    tags?: string[];
-  };
-  averageTime: number;
-  createdAt?: string;
-};
+import type { RecentSolvedResponse } from "../../types/api";
 
 type SolvedListProps = {
-  solveds: Solved[];
+  solveds: RecentSolvedResponse[];
 };
 
 function formatDate(dateString?: string): string {

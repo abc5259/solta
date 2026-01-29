@@ -1,7 +1,10 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { SolvedList } from "../components/SolvedList/SolvedList";
 import { Trophy, Clock, Target } from "lucide-react";
+import { solvedApi } from "../lib/api";
+import type { RecentSolvedResponse, TierGroupAverage, TierAverageMap } from "../types/api";
 
 const ProfileContainer = styled.div`
   padding: ${({ theme }) => theme.spacing(6)};
@@ -106,131 +109,6 @@ const StatCardIcon = styled.div`
   right: ${({ theme }) => theme.spacing(5)};
   color: ${({ theme }) => theme.colors.textMuted};
 `;
-
-const DifficultySection = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  background: #16213e;
-  border-radius: 16px;
-  padding: ${({ theme }) => theme.spacing(6)};
-  box-shadow: ${({ theme }) => theme.shadows.md};
-`;
-
-const SectionHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.spacing(6)};
-`;
-
-const SectionTitle = styled.h2`
-  color: white;
-  font-size: 1.8rem;
-  margin: 0;
-`;
-
-const DetailButton = styled.button`
-  background: #4ade80;
-  color: #1a1a2e;
-  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(4)};
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: #22c55e;
-  }
-`;
-
-const DifficultyContent = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing(6)};
-  align-items: start;
-`;
-
-const DonutChart = styled.div`
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: conic-gradient(
-    #cd7f32 0deg 53.6deg,
-    #c0c0c0 53.6deg 180deg,
-    #ffd700 180deg 360deg
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  position: relative;
-
-  &::before {
-    content: "?";
-    position: absolute;
-    font-size: 2rem;
-    color: white;
-    font-weight: bold;
-  }
-`;
-
-const DifficultyTable = styled.div`
-  background: #0f3460;
-  border-radius: 12px;
-  padding: ${({ theme }) => theme.spacing(4)};
-`;
-
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing(3)};
-  margin-bottom: ${({ theme }) => theme.spacing(3)};
-  font-weight: bold;
-  color: #cbd5e1;
-  border-bottom: 1px solid #533483;
-  padding-bottom: ${({ theme }) => theme.spacing(2)};
-`;
-
-const TableRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing(3)};
-  padding: ${({ theme }) => theme.spacing(2)} 0;
-  border-bottom: 1px solid rgba(83, 52, 131, 0.3);
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const TableCell = styled.div`
-  color: white;
-  text-align: center;
-`;
-
-const TierName = styled.span<{ tier: string }>`
-  font-weight: bold;
-  color: ${({ tier }) => {
-    switch (tier.toLowerCase()) {
-      case "bronze":
-        return "#cd7f32";
-      case "silver":
-        return "#c0c0c0";
-      case "gold":
-        return "#ffd700";
-      case "platinum":
-        return "#e5e4e2";
-      case "diamond":
-        return "#b9f2ff";
-      case "ruby":
-        return "#ff006e";
-      default:
-        return "white";
-    }
-  }};
-`;
-
 
 const TabSection = styled.div`
   max-width: 1200px;
@@ -394,201 +272,139 @@ function formatTime(minutes: number, seconds: number): string {
 }
 
 export function ProfilePage() {
+  const { username } = useParams<{ username: string }>();
   const [activeTab, setActiveTab] = useState<"recent" | "tier">("recent");
+  const [solveds, setSolveds] = useState<RecentSolvedResponse[]>([]);
+  const [tierGroupAverages, setTierGroupAverages] = useState<TierGroupAverage[]>([]);
+  const [tierAverages, setTierAverages] = useState<TierAverageMap | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const solveds = [
-    {
-      solvedId: 7,
-      solveType: "SELF",
-      solveTimeSeconds: 1865,
-      problem: {
-        problemId: 8125,
-        bojProblemId: 9440,
-        title: "숫자 더하기",
-        tier: "S2",
-        tags: ["수학", "구현"],
-      },
-      averageTime: 1865.0,
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      solvedId: 6,
-      solveType: "SOLUTION",
-      solveTimeSeconds: 27,
-      problem: {
-        problemId: 10693,
-        bojProblemId: 12100,
-        title: "2048 (Easy)",
-        tier: "G1",
-        tags: ["구현", "시뮬레이션"],
-      },
-      averageTime: 27.5,
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      solvedId: 5,
-      solveType: "SOLUTION",
-      solveTimeSeconds: 28,
-      problem: {
-        problemId: 10693,
-        bojProblemId: 12100,
-        title: "2048 (Easy)",
-        tier: "G1",
-        tags: ["구현", "시뮬레이션"],
-      },
-      averageTime: 27.5,
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      solvedId: 4,
-      solveType: "SELF",
-      solveTimeSeconds: 17,
-      problem: {
-        problemId: 9633,
-        bojProblemId: 11000,
-        title: "강의실 배정",
-        tier: "G4",
-        tags: ["그리디", "정렬"],
-      },
-      averageTime: 17.0,
-      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      solvedId: 3,
-      solveType: "SELF",
-      solveTimeSeconds: 17,
-      problem: {
-        problemId: 9633,
-        bojProblemId: 11000,
-        title: "강의실 배정",
-        tier: "G4",
-        tags: ["그리디", "정렬"],
-      },
-      averageTime: 17.0,
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      solvedId: 2,
-      solveType: "SELF",
-      solveTimeSeconds: 27,
-      problem: {
-        problemId: 12036,
-        bojProblemId: 13460,
-        title: "구슬 탈출 2",
-        tier: "G1",
-        tags: ["BFS", "구현"],
-      },
-      averageTime: 32.0,
-      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      solvedId: 1,
-      solveType: "SELF",
-      solveTimeSeconds: 37,
-      problem: {
-        problemId: 12036,
-        bojProblemId: 13460,
-        title: "구슬 탈출 2",
-        tier: "G1",
-        tags: ["BFS", "구현"],
-      },
-      averageTime: 32.0,
-      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
+  useEffect(() => {
+    if (!username) return;
 
-  // Mock data - 실제로는 API에서 가져올 데이터
-  const userData = {
-    userId: "dlwogns3413",
-    tier: "G2",
-    rating: 1685,
-    totalSolved: 247,
-    totalTimeHours: 234,
-    totalTimeMinutes: 56,
-    averageTimeMinutes: 23,
-    averageTimeSeconds: 12,
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [solvedsData, tierGroupData, tierData] = await Promise.all([
+          solvedApi.getRecentSolveds(username),
+          solvedApi.getTierGroupAverages(username),
+          solvedApi.getTierAverages(username),
+        ]);
+
+        setSolveds(solvedsData);
+        setTierGroupAverages(tierGroupData);
+        setTierAverages(tierData);
+      } catch (err) {
+        console.error("Failed to fetch profile data:", err);
+        setError("데이터를 불러오는데 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [username]);
+
+  // Calculate statistics from API data
+  const totalSolved = solveds.length;
+  const totalTimeSeconds = 0;
+  const totalTimeHours = Math.floor(totalTimeSeconds / 3600);
+  const totalTimeMinutes = Math.floor((totalTimeSeconds % 3600) / 60);
+  const averageTimeSeconds = totalSolved > 0 ? totalTimeSeconds / totalSolved : 0;
+  const averageTimeMinutes = Math.floor(averageTimeSeconds / 60);
+  const averageTimeSecondsRemainder = Math.floor(averageTimeSeconds % 60);
+
+  // Helper functions for tier display
+  const getTierGroupName = (tierGroup: string): string => {
+    const names: Record<string, string> = {
+      BRONZE: "브론즈",
+      SILVER: "실버",
+      GOLD: "골드",
+      PLATINUM: "플래티넘",
+      DIAMOND: "다이아",
+      RUBY: "루비",
+    };
+    return names[tierGroup] || tierGroup;
   };
 
-  const tierStats = [
-    { tier: "Bronze", count: 112, percentage: "14.9%" },
-    { tier: "Silver", count: 241, percentage: "32.0%" },
-    { tier: "Gold", count: 369, percentage: "48.9%" },
-    { tier: "Platinum", count: 30, percentage: "4.0%" },
-    { tier: "Diamond", count: 1, percentage: "0.1%" },
-    { tier: "Ruby", count: 0, percentage: "0.0%" },
-  ];
+  const getTierDisplayName = (tier: string): string => {
+    const prefix = tier.charAt(0);
+    const level = tier.charAt(1);
+    const prefixMap: Record<string, string> = {
+      B: "브",
+      S: "실",
+      G: "골",
+      P: "플",
+      D: "다",
+      R: "루",
+    };
+    return prefixMap[prefix] + level;
+  };
 
-  const tierGroupStats = [
-    {
-      tier: "Bronze",
-      tierName: "브론즈",
-      totalCount: 45,
-      averageMinutes: 8,
-      averageSeconds: 23,
-      subTiers: [
-        { level: "브1", count: 12, minutes: 6, seconds: 15 },
-        { level: "브2", count: 15, minutes: 7, seconds: 42 },
-        { level: "브3", count: 8, minutes: 9, seconds: 18 },
-        { level: "브4", count: 6, minutes: 10, seconds: 51 },
-        { level: "브5", count: 4, minutes: 12, seconds: 33 },
-      ],
-    },
-    {
-      tier: "Silver",
-      tierName: "실버",
-      totalCount: 89,
-      averageMinutes: 18,
-      averageSeconds: 47,
-      subTiers: [
-        { level: "실1", count: 25, minutes: 15, seconds: 22 },
-        { level: "실2", count: 22, minutes: 17, seconds: 38 },
-        { level: "실3", count: 19, minutes: 19, seconds: 45 },
-        { level: "실4", count: 15, minutes: 21, seconds: 12 },
-        { level: "실5", count: 8, minutes: 23, seconds: 56 },
-      ],
-    },
-    {
-      tier: "Gold",
-      tierName: "골드",
-      totalCount: 120,
-      averageMinutes: 25,
-      averageSeconds: 30,
-      subTiers: [
-        { level: "골1", count: 30, minutes: 22, seconds: 15 },
-        { level: "골2", count: 28, minutes: 24, seconds: 42 },
-        { level: "골3", count: 25, minutes: 26, seconds: 18 },
-        { level: "골4", count: 22, minutes: 27, seconds: 51 },
-        { level: "골5", count: 15, minutes: 29, seconds: 33 },
-      ],
-    },
-    {
-      tier: "Platinum",
-      tierName: "플래티넘",
-      totalCount: 30,
-      averageMinutes: 35,
-      averageSeconds: 20,
-      subTiers: [
-        { level: "플1", count: 8, minutes: 32, seconds: 15 },
-        { level: "플2", count: 7, minutes: 34, seconds: 42 },
-        { level: "플3", count: 6, minutes: 36, seconds: 18 },
-        { level: "플4", count: 5, minutes: 38, seconds: 51 },
-        { level: "플5", count: 4, minutes: 40, seconds: 33 },
-      ],
-    },
-  ];
+  // Transform API data for tier statistics display
+  const tierGroupStats = tierGroupAverages
+    .filter(tg => tg.solvedCount > 0 && tg.tierGroup !== "UNRATED")
+    .map(tg => {
+      const subTiers = tierAverages && tierAverages[tg.tierGroup]
+        ? tierAverages[tg.tierGroup]
+            .filter(ta => ta.solvedCount > 0)
+            .map(ta => ({
+              level: getTierDisplayName(ta.tier),
+              count: ta.solvedCount,
+              minutes: Math.floor((ta.averageSolvedSeconds || 0) / 60),
+              seconds: Math.floor((ta.averageSolvedSeconds || 0) % 60),
+            }))
+        : [];
+
+      return {
+        tier: tg.tierGroup,
+        tierName: getTierGroupName(tg.tierGroup),
+        totalCount: tg.solvedCount,
+        averageMinutes: Math.floor((tg.averageSolvedSeconds || 0) / 60),
+        averageSeconds: Math.floor((tg.averageSolvedSeconds || 0) % 60),
+        subTiers,
+      };
+    });
+
+  if (loading) {
+    return (
+      <ProfileContainer>
+        <div style={{ textAlign: "center", padding: "2rem" }}>로딩 중...</div>
+      </ProfileContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProfileContainer>
+        <div style={{ textAlign: "center", padding: "2rem", color: "red" }}>{error}</div>
+      </ProfileContainer>
+    );
+  }
+
+  if (!username) {
+    return (
+      <ProfileContainer>
+        <div style={{ textAlign: "center", padding: "2rem" }}>사용자 이름이 필요합니다.</div>
+      </ProfileContainer>
+    );
+  }
 
   return (
     <ProfileContainer>
       <UserSection>
         <UserInfo>
-          <UserIcon>D</UserIcon>
+          <UserIcon>{username.charAt(0).toUpperCase()}</UserIcon>
           <UserDetails>
             <UserHeader>
-              <UserId>{userData.userId}</UserId>
+              <UserId>{username}</UserId>
             </UserHeader>
             <UserStats>
               <div>
-                시간기록 문제: <StatHighlight>{userData.totalSolved}개</StatHighlight>
+                시간기록 문제: <StatHighlight>{totalSolved}개</StatHighlight>
               </div>
             </UserStats>
           </UserDetails>
@@ -601,7 +417,7 @@ export function ProfilePage() {
             <Trophy size={20} />
           </StatCardIcon>
           <StatCardTitle>시간기록한 문제 수</StatCardTitle>
-          <StatCardValue>{userData.totalSolved}개</StatCardValue>
+          <StatCardValue>{totalSolved}개</StatCardValue>
         </StatCard>
         <StatCard>
           <StatCardIcon>
@@ -609,7 +425,7 @@ export function ProfilePage() {
           </StatCardIcon>
           <StatCardTitle>총 풀이 시간</StatCardTitle>
           <StatCardValue>
-            {userData.totalTimeHours}h {userData.totalTimeMinutes}m
+            {totalTimeHours}h {totalTimeMinutes}m
           </StatCardValue>
         </StatCard>
         <StatCard>
@@ -618,7 +434,7 @@ export function ProfilePage() {
           </StatCardIcon>
           <StatCardTitle>전체 문제 평균 시간</StatCardTitle>
           <StatCardValue>
-            {userData.averageTimeMinutes}m {userData.averageTimeSeconds}s
+            {averageTimeMinutes}m {averageTimeSecondsRemainder}s
           </StatCardValue>
         </StatCard>
       </StatsCards>
