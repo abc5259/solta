@@ -1,10 +1,11 @@
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { SolvedList } from "../components/SolvedList/SolvedList";
 import { Trophy, Clock, Target } from "lucide-react";
-import { solvedApi } from "../lib/api";
-import type { RecentSolvedResponse, TierGroupAverage, TierAverageMap } from "../types/api";
+import { solvedQueryOptions } from "../api/queries/solved";
+import type { TierAverageMap } from "../types/api";
 
 const ProfileContainer = styled.div`
   padding: ${({ theme }) => theme.spacing(6)};
@@ -274,39 +275,21 @@ function formatTime(minutes: number, seconds: number): string {
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const [activeTab, setActiveTab] = useState<"recent" | "tier">("recent");
-  const [solveds, setSolveds] = useState<RecentSolvedResponse[]>([]);
-  const [tierGroupAverages, setTierGroupAverages] = useState<TierGroupAverage[]>([]);
-  const [tierAverages, setTierAverages] = useState<TierAverageMap | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!username) return;
+  const { data: solveds = [], isLoading: isLoadingSolveds, isError: isErrorSolveds } = useQuery(
+    solvedQueryOptions.recentSolveds(username || "")
+  );
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const { data: tierGroupAverages = [], isLoading: isLoadingTierGroups } = useQuery(
+    solvedQueryOptions.tierGroupAverages(username || "")
+  );
 
-        const [solvedsData, tierGroupData, tierData] = await Promise.all([
-          solvedApi.getRecentSolveds(username),
-          solvedApi.getTierGroupAverages(username),
-          solvedApi.getTierAverages(username),
-        ]);
+  const { data: tierAverages = null, isLoading: isLoadingTiers } = useQuery(
+    solvedQueryOptions.tierAverages(username || "")
+  );
 
-        setSolveds(solvedsData);
-        setTierGroupAverages(tierGroupData);
-        setTierAverages(tierData);
-      } catch (err) {
-        console.error("Failed to fetch profile data:", err);
-        setError("데이터를 불러오는데 실패했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [username]);
+  const loading = isLoadingSolveds || isLoadingTierGroups || isLoadingTiers;
+  const error = isErrorSolveds ? "데이터를 불러오는데 실패했습니다." : null;
 
   // Calculate statistics from API data
   const totalSolved = solveds.length;
