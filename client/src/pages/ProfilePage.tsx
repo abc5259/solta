@@ -276,7 +276,11 @@ export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const [activeTab, setActiveTab] = useState<"recent" | "tier">("recent");
 
-  const { data: solveds = [], isLoading: isLoadingSolveds, isError: isErrorSolveds } = useQuery(
+  const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery(
+    solvedQueryOptions.profile(username || "")
+  );
+
+  const { data: solveds = [], isLoading: isLoadingSolveds } = useQuery(
     solvedQueryOptions.recentSolveds(username || "")
   );
 
@@ -288,15 +292,15 @@ export function ProfilePage() {
     solvedQueryOptions.tierAverages(username || "")
   );
 
-  const loading = isLoadingSolveds || isLoadingTierGroups || isLoadingTiers;
-  const error = isErrorSolveds ? "데이터를 불러오는데 실패했습니다." : null;
+  const loading = isLoadingProfile || isLoadingSolveds || isLoadingTierGroups || isLoadingTiers;
+  const error = isErrorProfile ? "데이터를 불러오는데 실패했습니다." : null;
 
-  // Calculate statistics from API data
-  const totalSolved = solveds.length;
-  const totalTimeSeconds = 0;
+  // Calculate statistics from profile API data
+  const totalSolved = profile?.solvedCount || 0;
+  const totalTimeSeconds = profile?.totalSolvedTime || 0;
   const totalTimeHours = Math.floor(totalTimeSeconds / 3600);
   const totalTimeMinutes = Math.floor((totalTimeSeconds % 3600) / 60);
-  const averageTimeSeconds = totalSolved > 0 ? totalTimeSeconds / totalSolved : 0;
+  const averageTimeSeconds = profile?.totalSolvedAverageTime || 0;
   const averageTimeMinutes = Math.floor(averageTimeSeconds / 60);
   const averageTimeSecondsRemainder = Math.floor(averageTimeSeconds % 60);
 

@@ -3,6 +3,8 @@ import { solvedApi } from '../api';
 
 export const solvedQueryKeys = {
 	all: ['solved'] as const,
+	profile: (name: string) =>
+		[...solvedQueryKeys.all, 'profile', name] as const,
 	recentSolveds: (name: string) =>
 		[...solvedQueryKeys.all, 'recentSolveds', name] as const,
 	tierGroupAverages: (name: string) =>
@@ -12,6 +14,12 @@ export const solvedQueryKeys = {
 };
 
 export const solvedQueryOptions = {
+	profile: (name: string) =>
+		queryOptions({
+			queryKey: solvedQueryKeys.profile(name),
+			queryFn: () => solvedApi.getMemberProfile(name),
+			enabled: !!name,
+		}),
 	recentSolveds: (name: string) =>
 		queryOptions({
 			queryKey: solvedQueryKeys.recentSolveds(name),

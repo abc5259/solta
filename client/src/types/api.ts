@@ -39,3 +39,13 @@ export interface TierAverage {
 }
 
 export type TierAverageMap = Record<TierGroup, TierAverage[]>;
+
+export interface MemberProfileResponse {
+  memberId: number;
+  name: string;
+  bojId: string;
+  avatarUrl: string;
+  solvedCount: number;
+  totalSolvedTime: number;
+  totalSolvedAverageTime: number;
+}

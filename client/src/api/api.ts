@@ -3,6 +3,7 @@ import type {
   RecentSolvedResponse,
   TierGroupAverage,
   TierAverageMap,
+  MemberProfileResponse,
 } from "../types/api";
 
 export const solvedApi = {
@@ -29,6 +30,16 @@ export const solvedApi = {
   async getTierAverages(name: string): Promise<TierAverageMap> {
     const response = await api.get<TierAverageMap>(
       "/members/solveds/tier/average-time/search",
+      {
+        params: { name },
+      }
+    );
+    return response.data;
+  },
+
+  async getMemberProfile(name: string): Promise<MemberProfileResponse> {
+    const response = await api.get<MemberProfileResponse>(
+      "/members/profile",
       {
         params: { name },
       }
