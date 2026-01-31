@@ -1,14 +1,5 @@
 import styled from "styled-components";
-import { theme } from "../../styles/theme";
-
-const tierColorMap: Record<string, string> = {
-  B: theme.colors.tier.bronze,
-  S: theme.colors.tier.silver,
-  G: theme.colors.tier.gold,
-  P: theme.colors.tier.platinum,
-  D: theme.colors.tier.diamond,
-  R: theme.colors.tier.ruby,
-};
+import { TIER_GROUP_COLORS, getTierGroupFromTier, hslToRgb } from "../../constants/tierColors";
 
 export const TierWrapper = styled.div<{ tier: string }>`
   display: inline-block;
@@ -17,5 +8,8 @@ export const TierWrapper = styled.div<{ tier: string }>`
   font-size: 0.75rem;
   font-weight: 500;
   color: #fff;
-  background-color: ${({ tier }) => tierColorMap[tier[0]] || "#999"};
+  background-color: ${({ tier }) => {
+    const tierGroup = getTierGroupFromTier(tier);
+    return hslToRgb(TIER_GROUP_COLORS[tierGroup]);
+  }};
 `;

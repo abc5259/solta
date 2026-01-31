@@ -1,272 +1,11 @@
-import styled from "styled-components";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { SolvedList } from "../components/SolvedList/SolvedList";
+import { SolveTimeTrendChart } from "../components/SolveTimeTrendChart/SolveTimeTrendChart";
 import { Trophy, Clock, Target } from "lucide-react";
 import { solvedQueryOptions } from "../api/queries/solved";
-import type { TierAverageMap } from "../types/api";
-
-const ProfileContainer = styled.div`
-  padding: ${({ theme }) => theme.spacing(6)};
-  width: 100%;
-  min-height: 100vh;
-  background: ${({ theme }) => theme.colors.bgSecondary};
-`;
-
-const UserSection = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
-  padding: ${({ theme }) => theme.spacing(6)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  margin-bottom: ${({ theme }) => theme.spacing(4)};
-`;
-
-const UserInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(4)};
-`;
-
-const UserIcon = styled.div`
-  width: 72px;
-  height: 72px;
-  background: #9333ea;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: white;
-  font-weight: 700;
-  flex-shrink: 0;
-`;
-
-const UserDetails = styled.div`
-  flex: 1;
-`;
-
-const UserHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(2)};
-  margin-bottom: ${({ theme }) => theme.spacing(2)};
-`;
-
-const UserId = styled.h1`
-  font-size: 1.875rem;
-  color: ${({ theme }) => theme.colors.text};
-  margin: 0;
-  font-weight: 700;
-`;
-
-const UserStats = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  line-height: 1.5;
-`;
-
-const StatHighlight = styled.span`
-  font-weight: 700;
-  color: #9333ea;
-`;
-
-const StatsCards = styled.div`
-  max-width: 1200px;
-  margin: 0 auto ${({ theme }) => theme.spacing(4)} auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: ${({ theme }) => theme.spacing(4)};
-`;
-
-const StatCard = styled.div`
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
-  padding: ${({ theme }) => theme.spacing(5)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  position: relative;
-`;
-
-const StatCardTitle = styled.div`
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  margin-bottom: ${({ theme }) => theme.spacing(3)};
-`;
-
-const StatCardValue = styled.div`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const StatCardIcon = styled.div`
-  position: absolute;
-  top: ${({ theme }) => theme.spacing(5)};
-  right: ${({ theme }) => theme.spacing(5)};
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
-
-const TabSection = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
-  padding: ${({ theme }) => theme.spacing(6)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-`;
-
-const TabHeader = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing(2)};
-  margin-bottom: ${({ theme }) => theme.spacing(4)};
-  border-bottom: 2px solid ${({ theme }) => theme.colors.borderLight};
-`;
-
-const TabButton = styled.button<{ active: boolean }>`
-  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(4)};
-  background: none;
-  border: none;
-  border-bottom: 3px solid ${({ active }) => (active ? "#9333ea" : "transparent")};
-  color: ${({ active, theme }) => (active ? "#9333ea" : theme.colors.textSecondary)};
-  font-size: 1rem;
-  font-weight: ${({ active }) => (active ? "700" : "500")};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: -2px;
-
-  &:hover {
-    color: ${({ active }) => (active ? "#9333ea" : "#000")};
-  }
-`;
-
-const TabContent = styled.div`
-  min-height: 400px;
-`;
-
-const TierStatsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing(5)};
-`;
-
-const TierGroupSection = styled.div`
-  background: ${({ theme }) => theme.colors.bg};
-  border: 1px solid ${({ theme }) => theme.colors.borderLight};
-  border-radius: 16px;
-  padding: ${({ theme }) => theme.spacing(5)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: ${({ theme }) => theme.shadows.md};
-  }
-`;
-
-const TierGroupHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(3)};
-  margin-bottom: ${({ theme }) => theme.spacing(4)};
-  padding-bottom: ${({ theme }) => theme.spacing(3)};
-  border-bottom: 2px solid ${({ theme }) => theme.colors.borderLight};
-`;
-
-const TierGroupBadge = styled.span<{ tier: string }>`
-  padding: 8px 20px;
-  border-radius: 24px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: white;
-  background: ${({ tier }) => {
-    switch (tier.toLowerCase()) {
-      case "bronze": return "#cd7f32";
-      case "silver": return "#9ca3af";
-      case "gold": return "#f59e0b";
-      case "platinum": return "#e5e7eb";
-      case "diamond": return "#60a5fa";
-      case "ruby": return "#f43f5e";
-      default: return "#6b7280";
-    }
-  }};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const TierGroupSummary = styled.div`
-  font-size: 1rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.text};
-  
-  span {
-    color: ${({ theme }) => theme.colors.textSecondary};
-    font-weight: 500;
-  }
-`;
-
-const SubTierCards = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: ${({ theme }) => theme.spacing(3)};
-  
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-`;
-
-const SubTierCard = styled.div`
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.bgSecondary} 0%, ${({ theme }) => theme.colors.bg} 100%);
-  border: 1px solid ${({ theme }) => theme.colors.borderLight};
-  border-radius: 12px;
-  padding: ${({ theme }) => theme.spacing(4)};
-  transition: all 0.2s ease;
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: ${({ theme }) => theme.colors.border};
-  }
-`;
-
-const SubTierLevel = styled.div`
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing(3)};
-  padding-bottom: ${({ theme }) => theme.spacing(2)};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.borderLight};
-`;
-
-const SubTierInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing(2)};
-`;
-
-const SubTierCount = styled.div`
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
-  
-  span {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.textSecondary};
-  }
-`;
-
-const SubTierTime = styled.div`
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
+import * as Styled from "./ProfilePage.styled";
 
 function formatTime(minutes: number, seconds: number): string {
   return `${minutes}m ${seconds}s`;
@@ -274,7 +13,7 @@ function formatTime(minutes: number, seconds: number): string {
 
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const [activeTab, setActiveTab] = useState<"recent" | "tier">("recent");
+  const [activeTab, setActiveTab] = useState<"recent" | "tier" | "trend">("recent");
 
   const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery(
     solvedQueryOptions.profile(username || "")
@@ -358,129 +97,138 @@ export function ProfilePage() {
 
   if (loading) {
     return (
-      <ProfileContainer>
+      <Styled.ProfileContainer>
         <div style={{ textAlign: "center", padding: "2rem" }}>로딩 중...</div>
-      </ProfileContainer>
+      </Styled.ProfileContainer>
     );
   }
 
   if (error) {
     return (
-      <ProfileContainer>
+      <Styled.ProfileContainer>
         <div style={{ textAlign: "center", padding: "2rem", color: "red" }}>{error}</div>
-      </ProfileContainer>
+      </Styled.ProfileContainer>
     );
   }
 
   if (!username) {
     return (
-      <ProfileContainer>
+      <Styled.ProfileContainer>
         <div style={{ textAlign: "center", padding: "2rem" }}>사용자 이름이 필요합니다.</div>
-      </ProfileContainer>
+      </Styled.ProfileContainer>
     );
   }
 
   return (
-    <ProfileContainer>
-      <UserSection>
-        <UserInfo>
-          <UserIcon>{username.charAt(0).toUpperCase()}</UserIcon>
-          <UserDetails>
-            <UserHeader>
-              <UserId>{username}</UserId>
-            </UserHeader>
-            <UserStats>
+    <Styled.ProfileContainer>
+      <Styled.UserSection>
+        <Styled.UserInfo>
+          <Styled.UserIcon>{username.charAt(0).toUpperCase()}</Styled.UserIcon>
+          <Styled.UserDetails>
+            <Styled.UserHeader>
+              <Styled.UserId>{username}</Styled.UserId>
+            </Styled.UserHeader>
+            <Styled.UserStats>
               <div>
-                시간기록 문제: <StatHighlight>{totalSolved}개</StatHighlight>
+                시간기록 문제: <Styled.StatHighlight>{totalSolved}개</Styled.StatHighlight>
               </div>
-            </UserStats>
-          </UserDetails>
-        </UserInfo>
-      </UserSection>
+            </Styled.UserStats>
+          </Styled.UserDetails>
+        </Styled.UserInfo>
+      </Styled.UserSection>
 
-      <StatsCards>
-        <StatCard>
-          <StatCardIcon>
+      <Styled.StatsCards>
+        <Styled.StatCard>
+          <Styled.StatCardIcon>
             <Trophy size={20} />
-          </StatCardIcon>
-          <StatCardTitle>시간기록한 문제 수</StatCardTitle>
-          <StatCardValue>{totalSolved}개</StatCardValue>
-        </StatCard>
-        <StatCard>
-          <StatCardIcon>
+          </Styled.StatCardIcon>
+          <Styled.StatCardTitle>시간기록한 문제 수</Styled.StatCardTitle>
+          <Styled.StatCardValue>{totalSolved}개</Styled.StatCardValue>
+        </Styled.StatCard>
+        <Styled.StatCard>
+          <Styled.StatCardIcon>
             <Clock size={20} />
-          </StatCardIcon>
-          <StatCardTitle>총 풀이 시간</StatCardTitle>
-          <StatCardValue>
+          </Styled.StatCardIcon>
+          <Styled.StatCardTitle>총 풀이 시간</Styled.StatCardTitle>
+          <Styled.StatCardValue>
             {totalTimeHours}h {totalTimeMinutes}m
-          </StatCardValue>
-        </StatCard>
-        <StatCard>
-          <StatCardIcon>
+          </Styled.StatCardValue>
+        </Styled.StatCard>
+        <Styled.StatCard>
+          <Styled.StatCardIcon>
             <Target size={20} />
-          </StatCardIcon>
-          <StatCardTitle>전체 문제 평균 시간</StatCardTitle>
-          <StatCardValue>
+          </Styled.StatCardIcon>
+          <Styled.StatCardTitle>전체 문제 평균 시간</Styled.StatCardTitle>
+          <Styled.StatCardValue>
             {averageTimeMinutes}m {averageTimeSecondsRemainder}s
-          </StatCardValue>
-        </StatCard>
-      </StatsCards>
+          </Styled.StatCardValue>
+        </Styled.StatCard>
+      </Styled.StatsCards>
 
-      <TabSection>
-        <TabHeader>
-          <TabButton
+      <Styled.TabSection>
+        <Styled.TabHeader>
+          <Styled.TabButton
             active={activeTab === "recent"}
             onClick={() => setActiveTab("recent")}
           >
             최근 풀이 기록
-          </TabButton>
-          <TabButton
+          </Styled.TabButton>
+          <Styled.TabButton
             active={activeTab === "tier"}
             onClick={() => setActiveTab("tier")}
           >
             티어별 통계
-          </TabButton>
-        </TabHeader>
+          </Styled.TabButton>
+          <Styled.TabButton
+            active={activeTab === "trend"}
+            onClick={() => setActiveTab("trend")}
+          >
+            풀이 시간 추이
+          </Styled.TabButton>
+        </Styled.TabHeader>
 
-        <TabContent>
+        <Styled.TabContent>
           {activeTab === "recent" && <SolvedList solveds={solveds} />}
           {activeTab === "tier" && (
-            <TierStatsContainer>
+            <Styled.TierStatsContainer>
               {tierGroupStats.map((tierGroup) => (
-                <TierGroupSection key={tierGroup.tier}>
-                  <TierGroupHeader>
-                    <TierGroupBadge tier={tierGroup.tier}>
+                <Styled.TierGroupSection key={tierGroup.tier}>
+                  <Styled.TierGroupHeader>
+                    <Styled.TierGroupBadge tier={tierGroup.tier}>
                       {tierGroup.tierName}
-                    </TierGroupBadge>
-                    <TierGroupSummary>
+                    </Styled.TierGroupBadge>
+                    <Styled.TierGroupSummary>
                       <span>{tierGroup.totalCount}문제</span> 평균{" "}
                       {formatTime(tierGroup.averageMinutes, tierGroup.averageSeconds)}
-                    </TierGroupSummary>
-                  </TierGroupHeader>
-                  <SubTierCards>
+                    </Styled.TierGroupSummary>
+                  </Styled.TierGroupHeader>
+                  <Styled.SubTierCards>
                     {tierGroup.subTiers.map((subTier) => (
-                      <SubTierCard key={subTier.level}>
-                        <SubTierLevel>{subTier.level}</SubTierLevel>
-                        <SubTierInfo>
-                          <SubTierCount>
+                      <Styled.SubTierCard key={subTier.level}>
+                        <Styled.SubTierLevel>{subTier.level}</Styled.SubTierLevel>
+                        <Styled.SubTierInfo>
+                          <Styled.SubTierCount>
                             {subTier.count}
                             <span>문제</span>
-                          </SubTierCount>
-                          <SubTierTime>
+                          </Styled.SubTierCount>
+                          <Styled.SubTierTime>
                             <Clock size={14} />
                             {formatTime(subTier.minutes, subTier.seconds)}
-                          </SubTierTime>
-                        </SubTierInfo>
-                      </SubTierCard>
+                          </Styled.SubTierTime>
+                        </Styled.SubTierInfo>
+                      </Styled.SubTierCard>
                     ))}
-                  </SubTierCards>
-                </TierGroupSection>
+                  </Styled.SubTierCards>
+                </Styled.TierGroupSection>
               ))}
-            </TierStatsContainer>
+            </Styled.TierStatsContainer>
           )}
-        </TabContent>
-      </TabSection>
-    </ProfileContainer>
+          {activeTab === "trend" && username && (
+            <SolveTimeTrendChart memberName={username} />
+          )}
+        </Styled.TabContent>
+      </Styled.TabSection>
+    </Styled.ProfileContainer>
   );
 }
 
