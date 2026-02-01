@@ -14,6 +14,8 @@ export const solvedQueryKeys = {
 		[...solvedQueryKeys.all, 'tierAverages', name] as const,
 	solveTimeTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup) =>
 		[...solvedQueryKeys.all, 'solveTimeTrends', name, period, tierGroup] as const,
+	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup) =>
+		[...solvedQueryKeys.all, 'independentSolveTrends', name, period, tierGroup] as const,
 };
 
 export const solvedQueryOptions = {
@@ -45,6 +47,12 @@ export const solvedQueryOptions = {
 		queryOptions({
 			queryKey: solvedQueryKeys.solveTimeTrends(name, period, tierGroup),
 			queryFn: () => solvedApi.getSolveTimeTrends(name, period, tierGroup),
+			enabled: !!name,
+		}),
+	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup) =>
+		queryOptions({
+			queryKey: solvedQueryKeys.independentSolveTrends(name, period, tierGroup),
+			queryFn: () => solvedApi.getIndependentSolveTrends(name, period, tierGroup),
 			enabled: !!name,
 		}),
 };

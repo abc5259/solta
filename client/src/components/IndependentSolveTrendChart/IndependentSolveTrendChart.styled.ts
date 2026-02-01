@@ -75,13 +75,13 @@ export const ChangeBadge = styled.div<{ change: number }>`
   font-size: 0.875rem;
   font-weight: 600;
   background: ${({ change }) => {
-    if (change < 0) return "rgba(16, 185, 129, 0.1)";
-    if (change > 0) return "rgba(239, 68, 68, 0.1)";
+    if (change > 0) return "rgba(16, 185, 129, 0.1)";
+    if (change < 0) return "rgba(239, 68, 68, 0.1)";
     return "rgba(107, 114, 128, 0.1)";
   }};
   color: ${({ change }) => {
-    if (change < 0) return "#10b981";
-    if (change > 0) return "#ef4444";
+    if (change > 0) return "#10b981";
+    if (change < 0) return "#ef4444";
     return "#6b7280";
   }};
 `;
@@ -120,20 +120,17 @@ export const FilterGroup = styled.div`
   flex-wrap: wrap;
 `;
 
-export const FilterButton = styled.button<{ active: boolean; activeColor?: string }>`
+export const FilterButton = styled.button<{
+  active: boolean;
+  activeColor?: string;
+}>`
   padding: 6px 12px;
   border-radius: 6px;
   border: 1px solid
     ${({ active, activeColor, theme }) =>
-      active
-        ? activeColor || theme.colors.primary
-        : "transparent"};
+      active ? activeColor || theme.colors.primary : "transparent"};
   background: ${({ active, activeColor }) =>
-    active
-      ? activeColor
-        ? `${activeColor}20`
-        : "#d1fae5"
-      : "transparent"};
+    active ? (activeColor ? `${activeColor}20` : "#d1fae5") : "transparent"};
   color: ${({ active, activeColor, theme }) =>
     active
       ? activeColor || "#059669"

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { SolvedList } from "../components/SolvedList/SolvedList";
 import { SolveTimeTrendChart } from "../components/SolveTimeTrendChart/SolveTimeTrendChart";
+import { IndependentSolveTrendChart } from "../components/IndependentSolveTrendChart/IndependentSolveTrendChart";
 import { Trophy, Clock, Target } from "lucide-react";
 import { solvedQueryOptions } from "../api/queries/solved";
 import * as Styled from "./ProfilePage.styled";
@@ -13,7 +14,7 @@ function formatTime(minutes: number, seconds: number): string {
 
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const [activeTab, setActiveTab] = useState<"recent" | "tier" | "trend">("recent");
+  const [activeTab, setActiveTab] = useState<"recent" | "tier" | "trend" | "independent">("recent");
 
   const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery(
     solvedQueryOptions.profile(username || "")
@@ -185,6 +186,12 @@ export function ProfilePage() {
           >
             풀이 시간 추이
           </Styled.TabButton>
+          <Styled.TabButton
+            active={activeTab === "independent"}
+            onClick={() => setActiveTab("independent")}
+          >
+            독립 풀이 비율
+          </Styled.TabButton>
         </Styled.TabHeader>
 
         <Styled.TabContent>
@@ -225,6 +232,9 @@ export function ProfilePage() {
           )}
           {activeTab === "trend" && username && (
             <SolveTimeTrendChart memberName={username} />
+          )}
+          {activeTab === "independent" && username && (
+            <IndependentSolveTrendChart memberName={username} />
           )}
         </Styled.TabContent>
       </Styled.TabSection>

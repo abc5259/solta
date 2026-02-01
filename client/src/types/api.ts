@@ -55,3 +55,17 @@ export interface SolveTimeTrendsResponse {
   totalSolvedCount: number;
   trends: TrendPoint[];
 }
+
+export interface IndependentRatioPoint {
+  date: string;
+  independentCount: number;
+  totalCount: number;
+}
+
+export interface IndependentSolveTrendsResponse {
+  period: string;
+  tierGroup: string;
+  totalIndependentCount: number;
+  totalTotalCount: number;
+  trends: IndependentRatioPoint[];
+}

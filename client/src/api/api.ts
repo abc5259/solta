@@ -5,6 +5,7 @@ import type {
   TierAverageMap,
   MemberProfileResponse,
   SolveTimeTrendsResponse,
+  IndependentSolveTrendsResponse,
 } from "../types/api";
 import type { SolvedPeriod, TierGroup } from "../types/types";
 
@@ -56,6 +57,20 @@ export const solvedApi = {
   ): Promise<SolveTimeTrendsResponse> {
     const response = await api.get<SolveTimeTrendsResponse>(
       `/members/${name}/solve-time-trends`,
+      {
+        params: { period, tierGroup },
+      }
+    );
+    return response.data;
+  },
+
+  async getIndependentSolveTrends(
+    name: string,
+    period: SolvedPeriod,
+    tierGroup: TierGroup
+  ): Promise<IndependentSolveTrendsResponse> {
+    const response = await api.get<IndependentSolveTrendsResponse>(
+      `/members/${name}/independent-solve-trends`,
       {
         params: { period, tierGroup },
       }

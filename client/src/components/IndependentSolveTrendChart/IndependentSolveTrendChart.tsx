@@ -12,10 +12,10 @@ import { useQuery } from "@tanstack/react-query";
 import { solvedQueryOptions } from "../../api/queries/solved";
 import type { SolvedPeriod, TierGroup } from "../../types/types";
 import { TIER_GROUP_COLORS } from "../../constants/tierColors";
-import { TrendingUp, TrendingDown, Minus, Clock } from "lucide-react";
-import * as Styled from "./SolveTimeTrendChart.styled";
+import { TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
+import * as Styled from "./IndependentSolveTrendChart.styled";
 
-type SolveTimeTrendChartProps = {
+type IndependentSolveTrendChartProps = {
   memberName: string;
 };
 
@@ -37,62 +37,72 @@ const TIER_OPTIONS: { value: TierGroup; label: string; color: string }[] = [
   { value: "RUBY", label: "루비", color: TIER_GROUP_COLORS.RUBY },
 ];
 
-export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState<SolvedPeriod>("WEEK");
+export function IndependentSolveTrendChart({
+  memberName,
+}: IndependentSolveTrendChartProps) {
+  const [selectedPeriod, setSelectedPeriod] = useState<SolvedPeriod>("MONTH_6");
   const [selectedTier, setSelectedTier] = useState<TierGroup>("NONE");
 
   const { data, isLoading } = useQuery(
-    solvedQueryOptions.solveTimeTrends(memberName, selectedPeriod, selectedTier)
+    solvedQueryOptions.independentSolveTrends(
+      memberName,
+      selectedPeriod,
+      selectedTier
+    )
   );
 
   const chartData = useMemo(() => {
     if (!data?.trends) return [];
-    return data.trends.map((point) => ({
-      date: formatDate(point.date, selectedPeriod),
-      minutes: Math.round(point.averageSeconds / 60),
-      solvedCount: point.solvedCount,
-    }));
+    return data.trends.map((point) => {
+      const ratio =
+        point.totalCount > 0
+          ? Math.round((point.independentCount / point.totalCount) * 100)
+          : 0;
+      return {
+        date: formatDate(point.date, selectedPeriod),
+        ratio,
+        independentCount: point.independentCount,
+        totalCount: point.totalCount,
+      };
+    });
   }, [data, selectedPeriod]);
 
   const selectedTierOption = TIER_OPTIONS.find((t) => t.value === selectedTier);
   const chartColor = selectedTierOption?.color || "hsl(142, 76%, 45%)";
-  const totalSolvedCount = useMemo(
-    () => chartData.reduce((sum, point) => sum + point.solvedCount, 0),
-    [chartData]
-  );
 
-  const currentAverage = useMemo(() => {
-    if (chartData.length === 0) return 0;
-    const totalMinutes = chartData.reduce((sum, point) => sum + point.minutes, 0);
-    return Math.round(totalMinutes / chartData.length);
-  }, [chartData]);
+  const currentRatio = useMemo(() => {
+    if (!data || data.totalTotalCount === 0) return 0;
+    return Math.round(
+      (data.totalIndependentCount / data.totalTotalCount) * 100
+    );
+  }, [data]);
 
-  const timeChange = useMemo(() => {
+  const ratioChange = useMemo(() => {
     if (chartData.length < 2) return 0;
     const firstHalf = chartData.slice(0, Math.floor(chartData.length / 2));
     const secondHalf = chartData.slice(Math.floor(chartData.length / 2));
 
     const firstAvg =
-      firstHalf.reduce((sum, point) => sum + point.minutes, 0) / firstHalf.length;
+      firstHalf.reduce((sum, point) => sum + point.ratio, 0) / firstHalf.length;
     const secondAvg =
-      secondHalf.reduce((sum, point) => sum + point.minutes, 0) /
+      secondHalf.reduce((sum, point) => sum + point.ratio, 0) /
       secondHalf.length;
 
     return Math.round(secondAvg - firstAvg);
   }, [chartData]);
 
   const getTrendIcon = () => {
-    if (timeChange < 0) return <TrendingDown className="w-4 h-4" />;
-    if (timeChange > 0) return <TrendingUp className="w-4 h-4" />;
+    if (ratioChange > 0) return <TrendingUp className="w-4 h-4" />;
+    if (ratioChange < 0) return <TrendingDown className="w-4 h-4" />;
     return <Minus className="w-4 h-4" />;
   };
 
   const getInsightMessage = () => {
-    if (timeChange < -5) return "풀이 속도가 크게 향상됐어요!";
-    if (timeChange < 0) return "점점 빠르게 문제를 풀고 있어요!";
-    if (timeChange === 0) return "일정한 속도를 유지하고 있어요.";
-    if (timeChange > 5) return "어려운 문제에 충분한 시간을 투자하고 있어요!";
-    return "꾸준히 문제를 풀고 있어요!";
+    if (ratioChange > 10) return "독립 문제 해결 능력이 크게 향상됐어요!";
+    if (ratioChange > 0 && ratioChange <= 10)
+      return "점점 스스로 푸는 비율이 높아지고 있어요!";
+    if (ratioChange === 0) return "꾸준히 유지하고 있어요.";
+    return "어려운 문제에 도전하고 있나요? 화이팅!";
   };
 
   return (
@@ -100,29 +110,27 @@ export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
       <Styled.ChartHeader>
         <Styled.HeaderLeft>
           <div>
-            <Styled.ChartTitle>평균 풀이 시간 추이</Styled.ChartTitle>
+            <Styled.ChartTitle>독립 풀이 비율 추이</Styled.ChartTitle>
             <Styled.ChartSubtitle>
-              {totalSolvedCount > 0
-                ? `${totalSolvedCount}문제 평균`
-                : "데이터 없음"}
+              SELF vs SOLUTION 성장 그래프
             </Styled.ChartSubtitle>
           </div>
         </Styled.HeaderLeft>
         <Styled.IconWrapper>
-          <Clock size={20} />
+          <Brain size={20} />
         </Styled.IconWrapper>
       </Styled.ChartHeader>
 
       <Styled.StatsRow>
         <Styled.CurrentRatio>
-          <Styled.RatioValue>{currentAverage}분</Styled.RatioValue>
-          <Styled.RatioLabel>평균</Styled.RatioLabel>
+          <Styled.RatioValue>{currentRatio}%</Styled.RatioValue>
+          <Styled.RatioLabel>현재</Styled.RatioLabel>
         </Styled.CurrentRatio>
-        <Styled.ChangeBadge change={timeChange}>
+        <Styled.ChangeBadge change={ratioChange}>
           {getTrendIcon()}
           <span>
-            {timeChange > 0 ? "+" : ""}
-            {timeChange}분
+            {ratioChange > 0 ? "+" : ""}
+            {ratioChange}%p
           </span>
         </Styled.ChangeBadge>
       </Styled.StatsRow>
@@ -158,13 +166,15 @@ export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
         {isLoading ? (
           <Styled.LoadingState>로딩 중...</Styled.LoadingState>
         ) : chartData.length === 0 ? (
-          <Styled.EmptyState>선택한 조건에 맞는 데이터가 없습니다</Styled.EmptyState>
+          <Styled.EmptyState>
+            선택한 조건에 맞는 데이터가 없습니다
+          </Styled.EmptyState>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient
-                  id={`timeGradient-${selectedTier}`}
+                  id={`ratioGradient-${selectedTier}`}
                   x1="0"
                   y1="0"
                   x2="0"
@@ -192,9 +202,9 @@ export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(v) => `${v}분`}
+                tickFormatter={(v) => `${v}%`}
                 width={45}
-                domain={[0, 60]}
+                domain={[0, 100]}
               />
               <Tooltip
                 content={({ active, payload, label }) => {
@@ -226,7 +236,7 @@ export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
                             color: chartColor,
                           }}
                         >
-                          평균: {data.minutes}분
+                          독립 풀이: {data.ratio}%
                         </p>
                         <p
                           style={{
@@ -235,7 +245,7 @@ export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
                             color: "#6b7280",
                           }}
                         >
-                          풀이 수: {data.solvedCount}문제
+                          {data.independentCount}/{data.totalCount}문제
                         </p>
                       </div>
                     );
@@ -245,10 +255,10 @@ export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
               />
               <Area
                 type="monotone"
-                dataKey="minutes"
+                dataKey="ratio"
                 stroke={chartColor}
                 strokeWidth={2}
-                fill={`url(#timeGradient-${selectedTier})`}
+                fill={`url(#ratioGradient-${selectedTier})`}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -264,19 +274,16 @@ export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
 
 function formatDate(dateString: string, period: SolvedPeriod): string {
   const date = new Date(dateString);
-  
+
   if (period === "WEEK" || period === "MONTH") {
-    // 일별 표시
     const month = date.getMonth() + 1;
     const day = date.getDate();
     return `${month}월 ${day}일`;
   } else if (period === "MONTH_3" || period === "MONTH_6") {
-    // 월별 표시 (3개월, 6개월도 월별로 표시)
     const year = date.getFullYear().toString().slice(-2);
     const month = date.getMonth() + 1;
     return `${year}년 ${month}월`;
   } else {
-    // 월별 표시
     const year = date.getFullYear().toString().slice(-2);
     const month = date.getMonth() + 1;
     return `${year}년 ${month}월`;
