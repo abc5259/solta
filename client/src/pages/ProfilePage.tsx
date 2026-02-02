@@ -5,15 +5,11 @@ import { SolvedList } from "../components/SolvedList/SolvedList";
 import { SolveTimeTrendChart } from "../components/SolveTimeTrendChart/SolveTimeTrendChart";
 import { IndependentSolveTrendChart } from "../components/IndependentSolveTrendChart/IndependentSolveTrendChart";
 import { RetryListCard } from "../components/RetryListCard/RetryListCard";
+import { TierStatsChart } from "../components/TierStatsChart/TierStatsChart";
 import { Trophy, Clock, Target } from "lucide-react";
 import { solvedQueryOptions } from "../api/queries/solved";
 import formatSeconds from "../utils/formatSeconds";
 import * as Styled from "./ProfilePage.styled";
-
-function formatTime(minutes: number, seconds: number): string {
-  const totalSeconds = minutes * 60 + seconds;
-  return formatSeconds(totalSeconds);
-}
 
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -201,40 +197,7 @@ export function ProfilePage() {
 
         <Styled.TabContent>
           {activeTab === "recent" && <SolvedList solveds={solveds} />}
-          {activeTab === "tier" && (
-            <Styled.TierStatsContainer>
-              {tierGroupStats.map((tierGroup) => (
-                <Styled.TierGroupSection key={tierGroup.tier}>
-                  <Styled.TierGroupHeader>
-                    <Styled.TierGroupBadge tier={tierGroup.tier}>
-                      {tierGroup.tierName}
-                    </Styled.TierGroupBadge>
-                    <Styled.TierGroupSummary>
-                      <span>{tierGroup.totalCount}문제</span> 평균{" "}
-                      {formatTime(tierGroup.averageMinutes, tierGroup.averageSeconds)}
-                    </Styled.TierGroupSummary>
-                  </Styled.TierGroupHeader>
-                  <Styled.SubTierCards>
-                    {tierGroup.subTiers.map((subTier) => (
-                      <Styled.SubTierCard key={subTier.level}>
-                        <Styled.SubTierLevel>{subTier.level}</Styled.SubTierLevel>
-                        <Styled.SubTierInfo>
-                          <Styled.SubTierCount>
-                            {subTier.count}
-                            <span>문제</span>
-                          </Styled.SubTierCount>
-                          <Styled.SubTierTime>
-                            <Clock size={14} />
-                            {formatTime(subTier.minutes, subTier.seconds)}
-                          </Styled.SubTierTime>
-                        </Styled.SubTierInfo>
-                      </Styled.SubTierCard>
-                    ))}
-                  </Styled.SubTierCards>
-                </Styled.TierGroupSection>
-              ))}
-            </Styled.TierStatsContainer>
-          )}
+          {activeTab === "tier" && <TierStatsChart tierGroupStats={tierGroupStats} />}
           {activeTab === "trend" && username && (
             <SolveTimeTrendChart memberName={username} />
           )}
