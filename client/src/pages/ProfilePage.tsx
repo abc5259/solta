@@ -7,10 +7,12 @@ import { IndependentSolveTrendChart } from "../components/IndependentSolveTrendC
 import { RetryListCard } from "../components/RetryListCard/RetryListCard";
 import { Trophy, Clock, Target } from "lucide-react";
 import { solvedQueryOptions } from "../api/queries/solved";
+import formatSeconds from "../utils/formatSeconds";
 import * as Styled from "./ProfilePage.styled";
 
 function formatTime(minutes: number, seconds: number): string {
-  return `${minutes}m ${seconds}s`;
+  const totalSeconds = minutes * 60 + seconds;
+  return formatSeconds(totalSeconds);
 }
 
 export function ProfilePage() {
@@ -39,11 +41,7 @@ export function ProfilePage() {
   // Calculate statistics from profile API data
   const totalSolved = profile?.solvedCount || 0;
   const totalTimeSeconds = profile?.totalSolvedTime || 0;
-  const totalTimeHours = Math.floor(totalTimeSeconds / 3600);
-  const totalTimeMinutes = Math.floor((totalTimeSeconds % 3600) / 60);
   const averageTimeSeconds = profile?.totalSolvedAverageTime || 0;
-  const averageTimeMinutes = Math.floor(averageTimeSeconds / 60);
-  const averageTimeSecondsRemainder = Math.floor(averageTimeSeconds % 60);
 
   // Helper functions for tier display
   const getTierGroupName = (tierGroup: string): string => {
@@ -153,7 +151,7 @@ export function ProfilePage() {
           </Styled.StatCardIcon>
           <Styled.StatCardTitle>총 풀이 시간</Styled.StatCardTitle>
           <Styled.StatCardValue>
-            {totalTimeHours}h {totalTimeMinutes}m
+            {formatSeconds(totalTimeSeconds)}
           </Styled.StatCardValue>
         </Styled.StatCard>
         <Styled.StatCard>
@@ -162,7 +160,7 @@ export function ProfilePage() {
           </Styled.StatCardIcon>
           <Styled.StatCardTitle>전체 문제 평균 시간</Styled.StatCardTitle>
           <Styled.StatCardValue>
-            {averageTimeMinutes}m {averageTimeSecondsRemainder}s
+            {formatSeconds(averageTimeSeconds)}
           </Styled.StatCardValue>
         </Styled.StatCard>
       </Styled.StatsCards>
