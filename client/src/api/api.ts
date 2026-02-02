@@ -77,4 +77,17 @@ export const solvedApi = {
     );
     return response.data;
   },
+
+  async getRetryProblems(
+    name: string,
+    sortType: "LATEST" | "TIER" | "SOLVE_TIME" = "LATEST"
+  ): Promise<RecentSolvedResponse[]> {
+    const response = await api.get<RecentSolvedResponse[]>(
+      "/members/solveds/retry/search",
+      {
+        params: { name, sortType },
+      }
+    );
+    return response.data;
+  },
 };

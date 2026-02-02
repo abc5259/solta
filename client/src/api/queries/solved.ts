@@ -16,6 +16,8 @@ export const solvedQueryKeys = {
 		[...solvedQueryKeys.all, 'solveTimeTrends', name, period, tierGroup] as const,
 	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup) =>
 		[...solvedQueryKeys.all, 'independentSolveTrends', name, period, tierGroup] as const,
+	retryProblems: (name: string, sortType: "LATEST" | "TIER" | "SOLVE_TIME") =>
+		[...solvedQueryKeys.all, 'retryProblems', name, sortType] as const,
 };
 
 export const solvedQueryOptions = {
@@ -53,6 +55,12 @@ export const solvedQueryOptions = {
 		queryOptions({
 			queryKey: solvedQueryKeys.independentSolveTrends(name, period, tierGroup),
 			queryFn: () => solvedApi.getIndependentSolveTrends(name, period, tierGroup),
+			enabled: !!name,
+		}),
+	retryProblems: (name: string, sortType: "LATEST" | "TIER" | "SOLVE_TIME" = "LATEST") =>
+		queryOptions({
+			queryKey: solvedQueryKeys.retryProblems(name, sortType),
+			queryFn: () => solvedApi.getRetryProblems(name, sortType),
 			enabled: !!name,
 		}),
 };

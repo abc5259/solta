@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SolvedList } from "../components/SolvedList/SolvedList";
 import { SolveTimeTrendChart } from "../components/SolveTimeTrendChart/SolveTimeTrendChart";
 import { IndependentSolveTrendChart } from "../components/IndependentSolveTrendChart/IndependentSolveTrendChart";
+import { RetryListCard } from "../components/RetryListCard/RetryListCard";
 import { Trophy, Clock, Target } from "lucide-react";
 import { solvedQueryOptions } from "../api/queries/solved";
 import * as Styled from "./ProfilePage.styled";
@@ -14,7 +15,7 @@ function formatTime(minutes: number, seconds: number): string {
 
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const [activeTab, setActiveTab] = useState<"recent" | "tier" | "trend" | "independent">("recent");
+  const [activeTab, setActiveTab] = useState<"recent" | "tier" | "trend" | "independent" | "retry">("recent");
 
   const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery(
     solvedQueryOptions.profile(username || "")
@@ -192,6 +193,12 @@ export function ProfilePage() {
           >
             독립 풀이 비율
           </Styled.TabButton>
+          <Styled.TabButton
+            active={activeTab === "retry"}
+            onClick={() => setActiveTab("retry")}
+          >
+            다시 도전하기
+          </Styled.TabButton>
         </Styled.TabHeader>
 
         <Styled.TabContent>
@@ -235,6 +242,9 @@ export function ProfilePage() {
           )}
           {activeTab === "independent" && username && (
             <IndependentSolveTrendChart memberName={username} />
+          )}
+          {activeTab === "retry" && username && (
+            <RetryListCard memberName={username} />
           )}
         </Styled.TabContent>
       </Styled.TabSection>
