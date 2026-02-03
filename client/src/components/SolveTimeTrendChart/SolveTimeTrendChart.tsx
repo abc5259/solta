@@ -38,7 +38,7 @@ const TIER_OPTIONS: { value: TierGroup; label: string; color: string }[] = [
 ];
 
 export function SolveTimeTrendChart({ memberName }: SolveTimeTrendChartProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState<SolvedPeriod>("WEEK");
+  const [selectedPeriod, setSelectedPeriod] = useState<SolvedPeriod>("ALL");
   const [selectedTier, setSelectedTier] = useState<TierGroup>("NONE");
 
   const { data, isLoading } = useQuery(

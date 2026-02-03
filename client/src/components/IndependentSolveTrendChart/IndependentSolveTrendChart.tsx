@@ -40,7 +40,7 @@ const TIER_OPTIONS: { value: TierGroup; label: string; color: string }[] = [
 export function IndependentSolveTrendChart({
   memberName,
 }: IndependentSolveTrendChartProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState<SolvedPeriod>("MONTH_6");
+  const [selectedPeriod, setSelectedPeriod] = useState<SolvedPeriod>("ALL");
   const [selectedTier, setSelectedTier] = useState<TierGroup>("NONE");
 
   const { data, isLoading } = useQuery(
