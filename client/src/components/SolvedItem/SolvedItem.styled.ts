@@ -6,14 +6,16 @@ export const Container = styled.a`
   align-items: center;
   gap: ${({ theme }) => theme.spacing(3)};
   padding: ${({ theme }) => theme.spacing(3)};
-  border-radius: 8px;
-  background: ${({ theme }) => theme.colors.bgSecondary}80;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  background: ${({ theme }) => theme.colors.bg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   transition: all 0.2s ease;
   text-decoration: none;
   position: relative;
 
   &:hover {
-    background: ${({ theme }) => theme.colors.bgSecondary};
+    background: ${({ theme }) => theme.colors.bgTertiary};
+    border-color: ${({ theme }) => theme.colors.borderLight};
     transform: translateY(-1px);
   }
 `;

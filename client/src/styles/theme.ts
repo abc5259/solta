@@ -1,30 +1,30 @@
 export const theme = {
 	colors: {
-		// Primary colors based on solved.ac
-		primary: '#1a73e8', // Blue from solved.ac
-		primaryHover: '#1557b0',
-		primaryLight: '#e8f0fe',
-		
-		// Text colors
-		text: '#202124', // Dark text
-		textSecondary: '#5f6368', // Secondary text
-		textMuted: '#9aa0a6', // Muted text
-		
-		// Background colors
-		bg: '#ffffff',
-		bgSecondary: '#f8f9fa',
-		bgTertiary: '#f1f3f4',
-		
-		// Border colors
-		border: '#dadce0',
-		borderLight: '#e8eaed',
-		
+		// Primary colors - Modern blue accent
+		primary: '#5B9FED', // Bright blue accent
+		primaryHover: '#4A8DD9',
+		primaryLight: 'rgba(91, 159, 237, 0.15)',
+
+		// Text colors - Light text on dark bg
+		text: '#E4E6EB', // Very light gray
+		textSecondary: '#B0B3B8', // Medium gray
+		textMuted: '#8A8D91', // Muted gray
+
+		// Background colors - Dark theme
+		bg: '#1F1F1F', // Main background
+		bgSecondary: '#262626', // Card background
+		bgTertiary: '#2D2D2D', // Hover states
+
+		// Border colors - Subtle borders
+		border: '#333333',
+		borderLight: '#3D3D3D',
+
 		// Status colors
-		success: '#34a853', // Green for success
-		warning: '#fbbc04', // Yellow for warning
-		error: '#ea4335', // Red for error
-		info: '#4285f4', // Blue for info
-		
+		success: '#4CAF50', // Green for success
+		warning: '#FFA726', // Orange for warning
+		error: '#EF5350', // Red for error
+		info: '#5B9FED', // Blue for info
+
 		// Tier colors (based on solved.ac tier system)
 		tier: {
 			bronze: '#cd7f32',
@@ -46,9 +46,16 @@ export const theme = {
 		xl: '1280px'
 	},
 	shadows: {
-		sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-		md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-		lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+		sm: '0 2px 4px 0 rgba(0, 0, 0, 0.3)',
+		md: '0 4px 12px 0 rgba(0, 0, 0, 0.4)',
+		lg: '0 8px 24px 0 rgba(0, 0, 0, 0.5)',
+		glow: '0 0 20px rgba(91, 159, 237, 0.3)' // Subtle blue glow
+	},
+	borderRadius: {
+		sm: '8px',
+		md: '12px',
+		lg: '16px',
+		xl: '20px'
 	}
 } as const;
 

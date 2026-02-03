@@ -5,16 +5,17 @@ export const ProfileContainer = styled.div`
   padding: ${({ theme }) => theme.spacing(6)};
   width: 100%;
   min-height: 100vh;
-  background: ${({ theme }) => theme.colors.bgSecondary};
+  background: ${({ theme }) => theme.colors.bg};
 `;
 
 export const UserSection = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing(6)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   margin-bottom: ${({ theme }) => theme.spacing(4)};
 `;
 
@@ -27,7 +28,7 @@ export const UserInfo = styled.div`
 export const UserIcon = styled.div`
   width: 72px;
   height: 72px;
-  background: #9333ea;
+  background: ${({ theme }) => theme.colors.primary};
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -67,7 +68,7 @@ export const UserStats = styled.div`
 
 export const StatHighlight = styled.span`
   font-weight: 700;
-  color: #9333ea;
+  color: ${({ theme }) => theme.colors.primary};
 `;
 
 export const StatsCards = styled.div`
@@ -79,10 +80,11 @@ export const StatsCards = styled.div`
 `;
 
 export const StatCard = styled.div`
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing(5)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   position: relative;
 `;
 
@@ -105,41 +107,43 @@ export const StatCardIcon = styled.div`
   color: ${({ theme }) => theme.colors.textMuted};
 `;
 
-export const TabSection = styled.div`
+export const MainContent = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
-  padding: ${({ theme }) => theme.spacing(6)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
-`;
-
-export const TabHeader = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing(2)};
-  margin-bottom: ${({ theme }) => theme.spacing(4)};
-  border-bottom: 2px solid ${({ theme }) => theme.colors.borderLight};
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing(4)};
 `;
 
-export const TabButton = styled.button<{ active: boolean }>`
-  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(4)};
-  background: none;
-  border: none;
-  border-bottom: 3px solid ${({ active }) => (active ? "#9333ea" : "transparent")};
-  color: ${({ active, theme }) => (active ? "#9333ea" : theme.colors.textSecondary)};
-  font-size: 1rem;
-  font-weight: ${({ active }) => (active ? "700" : "500")};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: -2px;
+export const FullWidthSection = styled.div`
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: ${({ theme }) => theme.spacing(6)};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+`;
 
-  &:hover {
-    color: ${({ active }) => (active ? "#9333ea" : "#000")};
+export const TwoColumnGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${({ theme }) => theme.spacing(4)};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: 1fr;
   }
 `;
 
-export const TabContent = styled.div`
+export const PlaceholderCard = styled.div`
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  padding: ${({ theme }) => theme.spacing(6)};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.colors.textMuted};
 `;
 
 export const TierStatsContainer = styled.div`
@@ -150,14 +154,15 @@ export const TierStatsContainer = styled.div`
 
 export const TierGroupSection = styled.div`
   background: ${({ theme }) => theme.colors.bg};
-  border: 1px solid ${({ theme }) => theme.colors.borderLight};
-  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing(5)};
   box-shadow: ${({ theme }) => theme.shadows.sm};
   transition: all 0.2s ease;
 
   &:hover {
     box-shadow: ${({ theme }) => theme.shadows.md};
+    border-color: ${({ theme }) => theme.colors.borderLight};
   }
 `;
 
@@ -208,17 +213,18 @@ export const SubTierCards = styled.div`
 `;
 
 export const SubTierCard = styled.div`
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.bgSecondary} 0%, ${({ theme }) => theme.colors.bg} 100%);
-  border: 1px solid ${({ theme }) => theme.colors.borderLight};
-  border-radius: 12px;
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
   padding: ${({ theme }) => theme.spacing(4)};
   transition: all 0.2s ease;
   cursor: pointer;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: ${({ theme }) => theme.colors.border};
+    box-shadow: ${({ theme }) => theme.shadows.md};
+    border-color: ${({ theme }) => theme.colors.borderLight};
+    background: ${({ theme }) => theme.colors.bgTertiary};
   }
 `;
 

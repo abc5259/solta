@@ -186,19 +186,19 @@ export function IndependentSolveTrendChart({
               </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#e5e7eb"
+                stroke="#333333"
                 vertical={false}
               />
               <XAxis
                 dataKey="date"
-                stroke="#6b7280"
+                stroke="#8A8D91"
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 interval="preserveStartEnd"
               />
               <YAxis
-                stroke="#6b7280"
+                stroke="#8A8D91"
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
@@ -207,24 +207,34 @@ export function IndependentSolveTrendChart({
                 domain={[0, 100]}
               />
               <Tooltip
+                cursor={{ stroke: chartColor, strokeWidth: 2 }}
+                contentStyle={{
+                  backgroundColor: "#262626",
+                  border: "1px solid #333333",
+                  borderRadius: "12px",
+                  padding: "12px",
+                  boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)",
+                }}
+                itemStyle={{ color: "#E4E6EB" }}
+                labelStyle={{ color: "#E4E6EB", fontWeight: 600 }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
                       <div
                         style={{
-                          backgroundColor: "#fff",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: "8px",
+                          backgroundColor: "#262626",
+                          border: "1px solid #333333",
+                          borderRadius: "12px",
                           padding: "12px",
-                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)",
                         }}
                       >
                         <p
                           style={{
                             margin: "0 0 4px 0",
                             fontWeight: 600,
-                            color: "#24292f",
+                            color: "#E4E6EB",
                           }}
                         >
                           {label}
@@ -242,7 +252,7 @@ export function IndependentSolveTrendChart({
                           style={{
                             margin: 0,
                             fontSize: "12px",
-                            color: "#6b7280",
+                            color: "#B0B3B8",
                           }}
                         >
                           {data.independentCount}/{data.totalCount}문제

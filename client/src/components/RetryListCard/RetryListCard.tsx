@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { solvedQueryOptions } from "../../api/queries/solved";
 import { SolvedItem } from "../SolvedItem/SolvedItem";
@@ -12,7 +12,6 @@ interface RetryListCardProps {
 }
 
 export function RetryListCard({ memberName }: RetryListCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("LATEST");
 
   const { data: retryProblems = [], isLoading, refetch } = useQuery(
@@ -22,8 +21,6 @@ export function RetryListCard({ memberName }: RetryListCardProps) {
   const handleRefresh = () => {
     refetch();
   };
-
-  const displayProblems = isExpanded ? retryProblems : retryProblems.slice(0, 5);
 
   if (isLoading) {
     return (
@@ -80,8 +77,8 @@ export function RetryListCard({ memberName }: RetryListCardProps) {
 
       {/* Problem List */}
       <Styled.ProblemList>
-        {displayProblems.length > 0 ? (
-          displayProblems.map((solved) => (
+        {retryProblems.length > 0 ? (
+          retryProblems.map((solved) => (
             <SolvedItem
               key={solved.solvedId}
               solved={solved}
@@ -96,23 +93,6 @@ export function RetryListCard({ memberName }: RetryListCardProps) {
           </Styled.EmptyState>
         )}
       </Styled.ProblemList>
-
-      {/* Expand/Collapse Button */}
-      {retryProblems.length > 5 && (
-        <Styled.ExpandButton type="button" onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ? (
-            <>
-              <ChevronUp size={16} />
-              접기
-            </>
-          ) : (
-            <>
-              <ChevronDown size={16} />
-              {retryProblems.length - 5}개 더 보기
-            </>
-          )}
-        </Styled.ExpandButton>
-      )}
 
       {/* Motivation */}
       {retryProblems.length > 0 && (

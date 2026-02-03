@@ -12,6 +12,7 @@ import { Trophy } from "lucide-react";
 import { TIER_GROUP_COLORS } from "../../constants/tierColors";
 import formatSeconds from "../../utils/formatSeconds";
 import * as Styled from "./TierStatsChart.styled";
+import type { TierGroup } from "../../types/types";
 
 type SubTier = {
   level: string;
@@ -116,21 +117,29 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
           <Styled.EmptyState>풀이 기록이 없습니다</Styled.EmptyState>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} barSize={24}>
+            <BarChart data={chartData} barSize={28}>
+              <defs>
+                {Object.entries(TIER_GROUP_COLORS).map(([tier, color]) => (
+                  <linearGradient key={tier} id={`gradient-${tier}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                  </linearGradient>
+                ))}
+              </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#e5e7eb"
+                stroke="#333333"
                 vertical={false}
               />
               <XAxis
                 dataKey="name"
-                stroke="#6b7280"
+                stroke="#8A8D91"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
-                stroke="#6b7280"
+                stroke="#8A8D91"
                 fontSize={11}
                 tickLine={false}
                 axisLine={false}
@@ -145,24 +154,34 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                 }}
               />
               <Tooltip
+                cursor={{ fill: 'rgba(91, 159, 237, 0.1)' }}
+                contentStyle={{
+                  backgroundColor: "#262626",
+                  border: "1px solid #333333",
+                  borderRadius: "12px",
+                  padding: "12px",
+                  boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)",
+                }}
+                itemStyle={{ color: "#E4E6EB" }}
+                labelStyle={{ color: "#E4E6EB", fontWeight: 600 }}
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
                       <div
                         style={{
-                          backgroundColor: "#fff",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: "8px",
+                          backgroundColor: "#262626",
+                          border: "1px solid #333333",
+                          borderRadius: "12px",
                           padding: "12px",
-                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)",
                         }}
                       >
                         <p
                           style={{
                             margin: "0 0 8px 0",
                             fontWeight: 600,
-                            color: "#24292f",
+                            color: "#E4E6EB",
                           }}
                         >
                           {data.name}
@@ -171,7 +190,7 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                           style={{
                             margin: "0 0 4px 0",
                             fontSize: "14px",
-                            color: TIER_GROUP_COLORS[data.tier],
+                            color: TIER_GROUP_COLORS[data.tier as TierGroup],
                             fontWeight: 600,
                           }}
                         >
@@ -181,7 +200,7 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                           style={{
                             margin: 0,
                             fontSize: "12px",
-                            color: "#6b7280",
+                            color: "#B0B3B8",
                           }}
                         >
                           풀이 수: {data.count}문제
@@ -196,7 +215,7 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                 {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={TIER_GROUP_COLORS[entry.tier]}
+                    fill={`url(#gradient-${entry.tier})`}
                   />
                 ))}
               </Bar>

@@ -1,10 +1,7 @@
 import styled from "styled-components";
 
 export const ChartContainer = styled.div`
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
-  padding: ${({ theme }) => theme.spacing(5)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
+  /* Background removed - handled by parent container */
 `;
 
 export const ChartHeader = styled.div`
@@ -34,8 +31,8 @@ export const ChartSubtitle = styled.p`
 
 export const IconWrapper = styled.div`
   padding: ${({ theme }) => theme.spacing(2)};
-  border-radius: 8px;
-  background: rgba(16, 185, 129, 0.1);
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  background: ${({ theme }) => theme.colors.primaryLight};
   color: ${({ theme }) => theme.colors.primary};
   display: flex;
   align-items: center;

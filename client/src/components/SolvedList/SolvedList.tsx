@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import * as Styled from "./SolvedList.styled";
 import { SolvedItem } from "../SolvedItem/SolvedItem";
 import type { RecentSolvedResponse } from "../../types/api";
@@ -15,6 +15,20 @@ export function SolvedList({ solveds }: SolvedListProps) {
 
   return (
     <div>
+      <Styled.Header>
+        <Styled.HeaderLeft>
+          <div>
+            <Styled.Title>최근 풀이 기록</Styled.Title>
+            <Styled.Subtitle>
+              {solveds.length > 0 ? `최근에 푼 ${solveds.length}개의 문제` : "풀이 기록이 없습니다"}
+            </Styled.Subtitle>
+          </div>
+        </Styled.HeaderLeft>
+        <Styled.IconWrapper>
+          <Clock size={20} />
+        </Styled.IconWrapper>
+      </Styled.Header>
+
       <Styled.SolvedCardsContainer>
         {displayProblems.map(solved => (
           <SolvedItem

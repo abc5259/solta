@@ -1,10 +1,11 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  background: ${({ theme }) => theme.colors.bg};
-  border-radius: 16px;
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   padding: ${({ theme }) => theme.spacing(6)};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
 export const Header = styled.div`
@@ -29,9 +30,9 @@ export const Subtitle = styled.p`
 
 export const IconWrapper = styled.div`
   padding: ${({ theme }) => theme.spacing(2)};
-  border-radius: 8px;
-  background: rgba(147, 51, 234, 0.1);
-  color: #9333ea;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  background: ${({ theme }) => theme.colors.primaryLight};
+  color: ${({ theme }) => theme.colors.primary};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,7 +40,7 @@ export const IconWrapper = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(147, 51, 234, 0.15);
+    background: rgba(91, 159, 237, 0.25);
     transform: rotate(180deg);
   }
 
@@ -52,9 +53,10 @@ export const SortContainer = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing(1)};
   padding: ${({ theme }) => theme.spacing(1)};
-  background: ${({ theme }) => theme.colors.bgSecondary};
-  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.bg};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
   margin-bottom: ${({ theme }) => theme.spacing(4)};
+  border: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
 export const SortButton = styled.button<{ active: boolean }>`
@@ -63,11 +65,11 @@ export const SortButton = styled.button<{ active: boolean }>`
   font-size: 0.75rem;
   font-weight: 500;
   border: none;
-  border-radius: 6px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
   cursor: pointer;
   transition: all 0.2s ease;
   background: ${({ active, theme }) =>
-    active ? theme.colors.bg : "transparent"};
+    active ? theme.colors.bgSecondary : "transparent"};
   color: ${({ active, theme }) =>
     active ? theme.colors.text : theme.colors.textSecondary};
   box-shadow: ${({ active, theme }) =>
@@ -82,6 +84,28 @@ export const ProblemList = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing(2)};
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: ${({ theme }) => theme.spacing(1)};
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: ${({ theme }) => theme.colors.bg};
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.border};
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${({ theme }) => theme.colors.borderLight};
+  }
 `;
 
 export const EmptyState = styled.div`
