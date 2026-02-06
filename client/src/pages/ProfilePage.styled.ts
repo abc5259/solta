@@ -115,6 +115,43 @@ export const MainContent = styled.div`
   gap: ${({ theme }) => theme.spacing(4)};
 `;
 
+export const TabSection = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+export const TabHeader = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing(2)};
+  margin-bottom: ${({ theme }) => theme.spacing(4)};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+`;
+
+export const TabButton = styled.button<{ active: boolean }>`
+  padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(4)};
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid ${({ active, theme }) =>
+    active ? theme.colors.primary : "transparent"};
+  color: ${({ active, theme }) =>
+    active ? theme.colors.primary : theme.colors.textSecondary};
+  font-size: 1rem;
+  font-weight: ${({ active }) => (active ? 600 : 400)};
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary};
+  }
+`;
+
+export const TabContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing(4)};
+`;
+
 export const FullWidthSection = styled.div`
   background: ${({ theme }) => theme.colors.bgSecondary};
   border-radius: ${({ theme }) => theme.borderRadius.lg};

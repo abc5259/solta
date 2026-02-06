@@ -50,26 +50,36 @@ const TIER_NAMES: Record<string, string> = {
 };
 
 export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
-  const [selectedTier, setSelectedTier] = useState<string | null>(
-    tierGroupStats.length > 0 ? tierGroupStats[0].tier : null
-  );
+  const [selectedTier, setSelectedTier] = useState<string>("ALL");
 
   // Sort tier groups by tier order
   const sortedStats = [...tierGroupStats].sort((a, b) => {
     return TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier);
   });
 
-  // Filter to show only selected tier
-  const selectedTierData = sortedStats.find(stat => stat.tier === selectedTier);
+  // Filter to show only selected tier (or all if "ALL" is selected)
+  const selectedTierData = selectedTier === "ALL"
+    ? null
+    : sortedStats.find(stat => stat.tier === selectedTier);
 
-  // Create chart data from selected tier's sub-tiers only
+  // Create chart data from selected tier's sub-tiers only (or all tiers if "ALL")
   const chartData: Array<{
     name: string;
     averageTime: number;
     tier: string;
     count: number;
     independentRatio: number;
-  }> = selectedTierData
+  }> = selectedTier === "ALL"
+    ? sortedStats.flatMap((tierGroup) =>
+        tierGroup.subTiers.map((subTier) => ({
+          name: subTier.level,
+          averageTime: subTier.minutes * 60 + subTier.seconds,
+          tier: tierGroup.tier,
+          count: subTier.count,
+          independentRatio: tierGroup.independentRatio,
+        }))
+      )
+    : selectedTierData
     ? selectedTierData.subTiers.map((subTier) => ({
         name: subTier.level,
         averageTime: subTier.minutes * 60 + subTier.seconds,
@@ -79,9 +89,18 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
       }))
     : [];
 
-  // Calculate statistics for selected tier
-  const totalProblems = selectedTierData?.totalCount || 0;
-  const independentRatio = selectedTierData?.independentRatio || 0;
+  // Calculate statistics for selected tier (or all tiers if "ALL")
+  const totalProblems = selectedTier === "ALL"
+    ? sortedStats.reduce((sum, stat) => sum + stat.totalCount, 0)
+    : selectedTierData?.totalCount || 0;
+
+  const totalIndependentSolved = selectedTier === "ALL"
+    ? sortedStats.reduce((sum, stat) => sum + stat.independentSolvedCount, 0)
+    : selectedTierData?.independentSolvedCount || 0;
+
+  const independentRatio = totalProblems > 0
+    ? Math.round((totalIndependentSolved / totalProblems) * 100)
+    : 0;
 
   // Calculate average time for selected tier (weighted by problem count)
   const averageTime = chartData.length > 0
@@ -100,8 +119,12 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
 
   const getInsightMessage = () => {
     if (totalProblems === 0) return "아직 풀이 기록이 없습니다.";
-    if (longestTimeTier && selectedTierData) {
-      return `${TIER_NAMES[selectedTierData.tier]} 티어에서 ${longestTimeTier.name}가 평균 ${formatSeconds(longestTimeTier.averageTime)}로 가장 오래 걸렸어요!`;
+    if (longestTimeTier) {
+      if (selectedTier === "ALL") {
+        return `전체 티어에서 ${longestTimeTier.name}가 평균 ${formatSeconds(longestTimeTier.averageTime)}로 가장 오래 걸렸어요!`;
+      } else if (selectedTierData) {
+        return `${TIER_NAMES[selectedTierData.tier]} 티어에서 ${longestTimeTier.name}가 평균 ${formatSeconds(longestTimeTier.averageTime)}로 가장 오래 걸렸어요!`;
+      }
     }
     return "꾸준히 문제를 풀고 있어요!";
   };
@@ -113,7 +136,9 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
           <div>
             <Styled.ChartTitle>티어별 세부 통계</Styled.ChartTitle>
             <Styled.ChartSubtitle>
-              {selectedTierData
+              {selectedTier === "ALL"
+                ? `전체 ${totalProblems}문제의 평균 풀이 시간 및 독립 풀이율`
+                : selectedTierData
                 ? `${TIER_NAMES[selectedTierData.tier]} ${totalProblems}문제의 평균 풀이 시간 및 독립 풀이율`
                 : "데이터 없음"}
             </Styled.ChartSubtitle>
@@ -125,6 +150,13 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
       </Styled.ChartHeader>
 
       <Styled.TierSelector>
+        <Styled.TierButton
+          active={selectedTier === "ALL"}
+          tierColor={TIER_GROUP_COLORS.NONE}
+          onClick={() => setSelectedTier("ALL")}
+        >
+          전체 ({sortedStats.reduce((sum, stat) => sum + stat.totalCount, 0)})
+        </Styled.TierButton>
         {sortedStats.map((stat) => (
           <Styled.TierButton
             key={stat.tier}

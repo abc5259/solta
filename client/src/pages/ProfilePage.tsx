@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { SolvedList } from "../components/SolvedList/SolvedList";
@@ -12,6 +13,7 @@ import * as Styled from "./ProfilePage.styled";
 
 export function ProfilePage() {
   const { username } = useParams<{ username: string }>();
+  const [activeTab, setActiveTab] = useState<"recent" | "stats" | "retry">("recent");
 
   const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery(
     solvedQueryOptions.profile(username || "")
@@ -165,27 +167,48 @@ export function ProfilePage() {
         </Styled.StatCard>
       </Styled.StatsCards>
 
-      <Styled.MainContent>
-      <Styled.TwoColumnGrid>
-          {username && <SolveTimeTrendChart memberName={username} />}
-          {username && <IndependentSolveTrendChart memberName={username} />}
-        </Styled.TwoColumnGrid>
-        
-        <Styled.FullWidthSection>
-          <TierStatsChart tierGroupStats={tierGroupStats} />
-        </Styled.FullWidthSection>
+      <Styled.TabSection>
+        <Styled.TabHeader>
+          <Styled.TabButton
+            active={activeTab === "recent"}
+            onClick={() => setActiveTab("recent")}
+          >
+            최근 풀이
+          </Styled.TabButton>
+          <Styled.TabButton
+            active={activeTab === "stats"}
+            onClick={() => setActiveTab("stats")}
+          >
+            통계
+          </Styled.TabButton>
+          <Styled.TabButton
+            active={activeTab === "retry"}
+            onClick={() => setActiveTab("retry")}
+          >
+            다시 도전하기
+          </Styled.TabButton>
+        </Styled.TabHeader>
 
-        <Styled.TwoColumnGrid>
-          {username && <RetryListCard memberName={username} />}
-          <Styled.PlaceholderCard>
-            {/* 추가 컴포넌트 영역 */}
-          </Styled.PlaceholderCard>
-        </Styled.TwoColumnGrid>
-
-        <Styled.FullWidthSection>
-          <SolvedList solveds={solveds} />
-        </Styled.FullWidthSection>
-      </Styled.MainContent>
+        <Styled.TabContent>
+          {activeTab === "recent" && (
+            <Styled.FullWidthSection>
+              <SolvedList solveds={solveds} />
+            </Styled.FullWidthSection>
+          )}
+          {activeTab === "stats" && (
+            <>
+              <Styled.FullWidthSection>
+                <TierStatsChart tierGroupStats={tierGroupStats} />
+              </Styled.FullWidthSection>
+              <Styled.TwoColumnGrid>
+                {username && <SolveTimeTrendChart memberName={username} />}
+                {username && <IndependentSolveTrendChart memberName={username} />}
+              </Styled.TwoColumnGrid>
+            </>
+          )}
+          {activeTab === "retry" && username && <RetryListCard memberName={username} />}
+        </Styled.TabContent>
+      </Styled.TabSection>
     </Styled.ProfileContainer>
   );
 }
