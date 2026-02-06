@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import { solvedApi } from '../api';
-import type { SolvedPeriod, TierGroup } from '../types/types';
+import type { SolvedPeriod, TierGroup } from '../../types/types';
 
 export const solvedQueryKeys = {
 	all: ['solved'] as const,

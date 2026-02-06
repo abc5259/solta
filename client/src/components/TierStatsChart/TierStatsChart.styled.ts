@@ -88,3 +88,37 @@ export const InsightText = styled.p`
   font-size: 0.875rem;
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
+
+export const TierSelector = styled.div`
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: ${({ theme }) => theme.colors.bg};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  margin-bottom: ${({ theme }) => theme.spacing(4)};
+  flex-wrap: wrap;
+`;
+
+export const TierButton = styled.button<{ active: boolean; tierColor: string }>`
+  padding: 6px 12px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  border: 1px solid ${({ active, tierColor }) =>
+    active ? tierColor : "transparent"};
+  background: ${({ active, theme }) =>
+    active ? theme.colors.bgSecondary : "transparent"};
+  color: ${({ active, tierColor, theme }) =>
+    active ? tierColor : theme.colors.textSecondary};
+  font-size: 0.75rem;
+  font-weight: ${({ active }) => (active ? "600" : "500")};
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    background: ${({ active, theme }) =>
+      active ? theme.colors.bgSecondary : theme.colors.bgTertiary};
+    color: ${({ active, tierColor, theme }) =>
+      active ? tierColor : theme.colors.text};
+  }
+`;

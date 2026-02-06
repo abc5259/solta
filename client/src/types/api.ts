@@ -23,6 +23,7 @@ export interface TierGroupAverage {
   tierGroup: TierGroup;
   averageSolvedSeconds: number | null;
   solvedCount: number;
+  independentSolvedCount: number;
 }
 
 export interface TierAverage {

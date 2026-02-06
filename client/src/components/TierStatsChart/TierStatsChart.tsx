@@ -1,6 +1,8 @@
+import { useState } from "react";
 import {
-  BarChart,
+  ComposedChart,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -25,6 +27,8 @@ type TierGroupStat = {
   tier: string;
   tierName: string;
   totalCount: number;
+  independentSolvedCount: number;
+  independentRatio: number;
   averageMinutes: number;
   averageSeconds: number;
   subTiers: SubTier[];
@@ -36,38 +40,51 @@ type TierStatsChartProps = {
 
 const TIER_ORDER = ["BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "RUBY"];
 
+const TIER_NAMES: Record<string, string> = {
+  BRONZE: "브론즈",
+  SILVER: "실버",
+  GOLD: "골드",
+  PLATINUM: "플래티넘",
+  DIAMOND: "다이아",
+  RUBY: "루비",
+};
+
 export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
+  const [selectedTier, setSelectedTier] = useState<string | null>(
+    tierGroupStats.length > 0 ? tierGroupStats[0].tier : null
+  );
+
   // Sort tier groups by tier order
   const sortedStats = [...tierGroupStats].sort((a, b) => {
     return TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier);
   });
 
-  // Create chart data from all sub-tiers
+  // Filter to show only selected tier
+  const selectedTierData = sortedStats.find(stat => stat.tier === selectedTier);
+
+  // Create chart data from selected tier's sub-tiers only
   const chartData: Array<{
     name: string;
     averageTime: number;
     tier: string;
     count: number;
-  }> = [];
-
-  sortedStats.forEach((tierGroup) => {
-    tierGroup.subTiers.forEach((subTier) => {
-      chartData.push({
+    independentRatio: number;
+  }> = selectedTierData
+    ? selectedTierData.subTiers.map((subTier) => ({
         name: subTier.level,
         averageTime: subTier.minutes * 60 + subTier.seconds,
-        tier: tierGroup.tier,
+        tier: selectedTierData.tier,
         count: subTier.count,
-      });
-    });
-  });
+        independentRatio: selectedTierData.independentRatio,
+      }))
+    : [];
 
-  const totalProblems = tierGroupStats.reduce(
-    (sum, stat) => sum + stat.totalCount,
-    0
-  );
+  // Calculate statistics for selected tier
+  const totalProblems = selectedTierData?.totalCount || 0;
+  const independentRatio = selectedTierData?.independentRatio || 0;
 
-  // Calculate overall average time (weighted by problem count)
-  const overallAverageTime = chartData.length > 0
+  // Calculate average time for selected tier (weighted by problem count)
+  const averageTime = chartData.length > 0
     ? Math.floor(
         chartData.reduce((sum, item) => sum + item.averageTime * item.count, 0) /
           chartData.reduce((sum, item) => sum + item.count, 0)
@@ -83,8 +100,8 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
 
   const getInsightMessage = () => {
     if (totalProblems === 0) return "아직 풀이 기록이 없습니다.";
-    if (longestTimeTier) {
-      return `${longestTimeTier.name}에서 평균 ${formatSeconds(longestTimeTier.averageTime)}로 가장 오래 걸렸어요!`;
+    if (longestTimeTier && selectedTierData) {
+      return `${TIER_NAMES[selectedTierData.tier]} 티어에서 ${longestTimeTier.name}가 평균 ${formatSeconds(longestTimeTier.averageTime)}로 가장 오래 걸렸어요!`;
     }
     return "꾸준히 문제를 풀고 있어요!";
   };
@@ -94,9 +111,11 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
       <Styled.ChartHeader>
         <Styled.HeaderLeft>
           <div>
-            <Styled.ChartTitle>티어별 평균 풀이 시간</Styled.ChartTitle>
+            <Styled.ChartTitle>티어별 세부 통계</Styled.ChartTitle>
             <Styled.ChartSubtitle>
-              {totalProblems > 0 ? `${totalProblems}문제의 세부 티어별 평균 시간` : "데이터 없음"}
+              {selectedTierData
+                ? `${TIER_NAMES[selectedTierData.tier]} ${totalProblems}문제의 평균 풀이 시간 및 독립 풀이율`
+                : "데이터 없음"}
             </Styled.ChartSubtitle>
           </div>
         </Styled.HeaderLeft>
@@ -105,10 +124,27 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
         </Styled.IconWrapper>
       </Styled.ChartHeader>
 
+      <Styled.TierSelector>
+        {sortedStats.map((stat) => (
+          <Styled.TierButton
+            key={stat.tier}
+            active={selectedTier === stat.tier}
+            tierColor={TIER_GROUP_COLORS[stat.tier as TierGroup]}
+            onClick={() => setSelectedTier(stat.tier)}
+          >
+            {TIER_NAMES[stat.tier]} ({stat.totalCount})
+          </Styled.TierButton>
+        ))}
+      </Styled.TierSelector>
+
       <Styled.StatsRow>
         <Styled.CurrentRatio>
-          <Styled.RatioValue>{formatSeconds(overallAverageTime)}</Styled.RatioValue>
-          <Styled.RatioLabel>전체 평균</Styled.RatioLabel>
+          <Styled.RatioValue>{formatSeconds(averageTime)}</Styled.RatioValue>
+          <Styled.RatioLabel>평균 시간</Styled.RatioLabel>
+        </Styled.CurrentRatio>
+        <Styled.CurrentRatio>
+          <Styled.RatioValue>{independentRatio}%</Styled.RatioValue>
+          <Styled.RatioLabel>독립 풀이율</Styled.RatioLabel>
         </Styled.CurrentRatio>
       </Styled.StatsRow>
 
@@ -117,7 +153,7 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
           <Styled.EmptyState>풀이 기록이 없습니다</Styled.EmptyState>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} barSize={28}>
+            <ComposedChart data={chartData} barSize={28}>
               <defs>
                 {Object.entries(TIER_GROUP_COLORS).map(([tier, color]) => (
                   <linearGradient key={tier} id={`gradient-${tier}`} x1="0" y1="0" x2="0" y2="1">
@@ -139,6 +175,7 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                 axisLine={false}
               />
               <YAxis
+                yAxisId="left"
                 stroke="#8A8D91"
                 fontSize={11}
                 tickLine={false}
@@ -152,6 +189,17 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                   }
                   return `${minutes}분`;
                 }}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                stroke="#5B9FED"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                width={50}
+                domain={[0, 100]}
+                tickFormatter={(value) => `${value}%`}
               />
               <Tooltip
                 cursor={{ fill: 'rgba(91, 159, 237, 0.1)' }}
@@ -194,7 +242,17 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                             fontWeight: 600,
                           }}
                         >
-                          평균: {formatSeconds(data.averageTime)}
+                          평균 시간: {formatSeconds(data.averageTime)}
+                        </p>
+                        <p
+                          style={{
+                            margin: "0 0 4px 0",
+                            fontSize: "14px",
+                            color: "#5B9FED",
+                            fontWeight: 600,
+                          }}
+                        >
+                          독립 풀이율: {data.independentRatio}%
                         </p>
                         <p
                           style={{
@@ -211,7 +269,7 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                   return null;
                 }}
               />
-              <Bar dataKey="averageTime" radius={[8, 8, 0, 0]}>
+              <Bar dataKey="averageTime" yAxisId="left" radius={[8, 8, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
@@ -219,7 +277,16 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
                   />
                 ))}
               </Bar>
-            </BarChart>
+              <Line
+                type="monotone"
+                dataKey="independentRatio"
+                yAxisId="right"
+                stroke="#5B9FED"
+                strokeWidth={2}
+                dot={{ fill: "#5B9FED", r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         )}
       </Styled.ChartWrapper>

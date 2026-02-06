@@ -66,7 +66,7 @@ export function ProfilePage() {
 
   // Transform API data for tier statistics display
   const tierGroupStats = tierGroupAverages
-    .filter(tg => tg.solvedCount > 0 && tg.tierGroup !== "UNRATED")
+    .filter(tg => tg.tierGroup !== "UNRATED" && tg.tierGroup !== "NONE")
     .map(tg => {
       const subTiers = tierAverages && tierAverages[tg.tierGroup]
         ? tierAverages[tg.tierGroup]
@@ -79,10 +79,16 @@ export function ProfilePage() {
             }))
         : [];
 
+      const independentRatio = tg.solvedCount > 0
+        ? Math.round((tg.independentSolvedCount / tg.solvedCount) * 100)
+        : 0;
+
       return {
         tier: tg.tierGroup,
         tierName: getTierGroupName(tg.tierGroup),
         totalCount: tg.solvedCount,
+        independentSolvedCount: tg.independentSolvedCount,
+        independentRatio,
         averageMinutes: Math.floor((tg.averageSolvedSeconds || 0) / 60),
         averageSeconds: Math.floor((tg.averageSolvedSeconds || 0) % 60),
         subTiers,
