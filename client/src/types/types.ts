@@ -13,3 +13,5 @@ export type Tier =
 export type TierGroup = "NONE" | "UNRATED" | "BRONZE" | "SILVER" | "GOLD" | "PLATINUM" | "DIAMOND" | "RUBY";
 
 export type SolvedPeriod = "WEEK" | "MONTH" | "MONTH_3" | "MONTH_6" | "ALL";
+
+export type TagKey = "MATH" | "IMPLEMENTATION" | "GREEDY" | "STRING" | "DATA_STRUCTURES" | "GRAPHS" | "DP" | "GEOMETRY" | "BINARY_SEARCH";

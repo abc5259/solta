@@ -53,12 +53,13 @@ export const solvedApi = {
   async getSolveTimeTrends(
     name: string,
     period: SolvedPeriod,
-    tierGroup: TierGroup
+    tierGroup: TierGroup,
+    tagKey?: string
   ): Promise<SolveTimeTrendsResponse> {
     const response = await api.get<SolveTimeTrendsResponse>(
       `/members/${name}/solve-time-trends`,
       {
-        params: { period, tierGroup },
+        params: { period, tierGroup, tagKey },
       }
     );
     return response.data;
