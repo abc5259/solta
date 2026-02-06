@@ -68,12 +68,13 @@ export const solvedApi = {
   async getIndependentSolveTrends(
     name: string,
     period: SolvedPeriod,
-    tierGroup: TierGroup
+    tierGroup: TierGroup,
+    tagKey?: string
   ): Promise<IndependentSolveTrendsResponse> {
     const response = await api.get<IndependentSolveTrendsResponse>(
       `/members/${name}/independent-solve-trends`,
       {
-        params: { period, tierGroup },
+        params: { period, tierGroup, tagKey },
       }
     );
     return response.data;

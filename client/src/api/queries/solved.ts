@@ -14,8 +14,8 @@ export const solvedQueryKeys = {
 		[...solvedQueryKeys.all, 'tierAverages', name] as const,
 	solveTimeTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup, tagKey?: string) =>
 		[...solvedQueryKeys.all, 'solveTimeTrends', name, period, tierGroup, tagKey] as const,
-	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup) =>
-		[...solvedQueryKeys.all, 'independentSolveTrends', name, period, tierGroup] as const,
+	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup, tagKey?: string) =>
+		[...solvedQueryKeys.all, 'independentSolveTrends', name, period, tierGroup, tagKey] as const,
 	retryProblems: (name: string, sortType: "LATEST" | "TIER" | "SOLVE_TIME") =>
 		[...solvedQueryKeys.all, 'retryProblems', name, sortType] as const,
 };
@@ -51,10 +51,10 @@ export const solvedQueryOptions = {
 			queryFn: () => solvedApi.getSolveTimeTrends(name, period, tierGroup, tagKey),
 			enabled: !!name,
 		}),
-	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup) =>
+	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup, tagKey?: string) =>
 		queryOptions({
-			queryKey: solvedQueryKeys.independentSolveTrends(name, period, tierGroup),
-			queryFn: () => solvedApi.getIndependentSolveTrends(name, period, tierGroup),
+			queryKey: solvedQueryKeys.independentSolveTrends(name, period, tierGroup, tagKey),
+			queryFn: () => solvedApi.getIndependentSolveTrends(name, period, tierGroup, tagKey),
 			enabled: !!name,
 		}),
 	retryProblems: (name: string, sortType: "LATEST" | "TIER" | "SOLVE_TIME" = "LATEST") =>

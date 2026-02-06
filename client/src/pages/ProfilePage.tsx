@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { SolvedList } from "../components/SolvedList/SolvedList";
-import { SolveTimeTrendChart } from "../components/SolveTimeTrendChart/SolveTimeTrendChart";
-import { IndependentSolveTrendChart } from "../components/IndependentSolveTrendChart/IndependentSolveTrendChart";
+import { SolveTrendsChart } from "../components/SolveTrendsChart/SolveTrendsChart";
 import { RetryListCard } from "../components/RetryListCard/RetryListCard";
 import { TierStatsChart } from "../components/TierStatsChart/TierStatsChart";
 import { Trophy, Clock, Target } from "lucide-react";
@@ -200,10 +199,7 @@ export function ProfilePage() {
               <Styled.FullWidthSection>
                 <TierStatsChart tierGroupStats={tierGroupStats} />
               </Styled.FullWidthSection>
-              <Styled.TwoColumnGrid>
-                {username && <SolveTimeTrendChart memberName={username} />}
-                {username && <IndependentSolveTrendChart memberName={username} />}
-              </Styled.TwoColumnGrid>
+              {username && <SolveTrendsChart memberName={username} />}
             </>
           )}
           {activeTab === "retry" && username && <RetryListCard memberName={username} />}

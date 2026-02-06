@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { solvedQueryOptions } from "../../api/queries/solved";
-import type { SolvedPeriod, TierGroup } from "../../types/types";
+import type { SolvedPeriod, TierGroup, TagKey } from "../../types/types";
 import { TIER_GROUP_COLORS } from "../../constants/tierColors";
 import { TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
 import * as Styled from "./IndependentSolveTrendChart.styled";
@@ -37,17 +37,32 @@ const TIER_OPTIONS: { value: TierGroup; label: string; color: string }[] = [
   { value: "RUBY", label: "루비", color: TIER_GROUP_COLORS.RUBY },
 ];
 
+const TAG_OPTIONS: { value: TagKey | ""; label: string }[] = [
+  { value: "", label: "전체" },
+  { value: "MATH", label: "수학" },
+  { value: "IMPLEMENTATION", label: "구현" },
+  { value: "GREEDY", label: "그리디 알고리즘" },
+  { value: "STRING", label: "문자열" },
+  { value: "DATA_STRUCTURES", label: "자료 구조" },
+  { value: "GRAPHS", label: "그래프 이론" },
+  { value: "DP", label: "다이나믹 프로그래밍" },
+  { value: "GEOMETRY", label: "기하학" },
+  { value: "BINARY_SEARCH", label: "이분탐색" },
+];
+
 export function IndependentSolveTrendChart({
   memberName,
 }: IndependentSolveTrendChartProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<SolvedPeriod>("ALL");
   const [selectedTier, setSelectedTier] = useState<TierGroup>("NONE");
+  const [selectedTag, setSelectedTag] = useState<TagKey | "">("");
 
   const { data, isLoading } = useQuery(
     solvedQueryOptions.independentSolveTrends(
       memberName,
       selectedPeriod,
-      selectedTier
+      selectedTier,
+      selectedTag || undefined
     )
   );
 
@@ -155,6 +170,20 @@ export function IndependentSolveTrendChart({
               active={selectedTier === option.value}
               activeColor={option.color}
               onClick={() => setSelectedTier(option.value)}
+            >
+              {option.label}
+            </Styled.FilterButton>
+          ))}
+        </Styled.FilterGroup>
+      </Styled.FilterRow>
+
+      <Styled.FilterRow>
+        <Styled.FilterGroup>
+          {TAG_OPTIONS.map((option) => (
+            <Styled.FilterButton
+              key={option.value || "all"}
+              active={selectedTag === option.value}
+              onClick={() => setSelectedTag(option.value)}
             >
               {option.label}
             </Styled.FilterButton>
