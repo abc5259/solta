@@ -22,79 +22,13 @@ export function ProfilePage() {
     solvedQueryOptions.recentSolveds(username || "")
   );
 
-  const { data: tierGroupAverages = [], isLoading: isLoadingTierGroups } = useQuery(
-    solvedQueryOptions.tierGroupAverages(username || "")
-  );
-
-  const { data: tierAverages = null, isLoading: isLoadingTiers } = useQuery(
-    solvedQueryOptions.tierAverages(username || "")
-  );
-
-  const loading = isLoadingProfile || isLoadingSolveds || isLoadingTierGroups || isLoadingTiers;
+  const loading = isLoadingProfile || isLoadingSolveds;
   const error = isErrorProfile ? "데이터를 불러오는데 실패했습니다." : null;
 
   // Calculate statistics from profile API data
   const totalSolved = profile?.solvedCount || 0;
   const totalTimeSeconds = profile?.totalSolvedTime || 0;
   const averageTimeSeconds = profile?.totalSolvedAverageTime || 0;
-
-  // Helper functions for tier display
-  const getTierGroupName = (tierGroup: string): string => {
-    const names: Record<string, string> = {
-      BRONZE: "브론즈",
-      SILVER: "실버",
-      GOLD: "골드",
-      PLATINUM: "플래티넘",
-      DIAMOND: "다이아",
-      RUBY: "루비",
-    };
-    return names[tierGroup] || tierGroup;
-  };
-
-  const getTierDisplayName = (tier: string): string => {
-    const prefix = tier.charAt(0);
-    const level = tier.charAt(1);
-    const prefixMap: Record<string, string> = {
-      B: "브",
-      S: "실",
-      G: "골",
-      P: "플",
-      D: "다",
-      R: "루",
-    };
-    return prefixMap[prefix] + level;
-  };
-
-  // Transform API data for tier statistics display
-  const tierGroupStats = tierGroupAverages
-    .filter(tg => tg.tierGroup !== "UNRATED" && tg.tierGroup !== "NONE")
-    .map(tg => {
-      const subTiers = tierAverages && tierAverages[tg.tierGroup]
-        ? tierAverages[tg.tierGroup]
-            .filter(ta => ta.solvedCount > 0)
-            .map(ta => ({
-              level: getTierDisplayName(ta.tier),
-              count: ta.solvedCount,
-              minutes: Math.floor((ta.averageSolvedSeconds || 0) / 60),
-              seconds: Math.floor((ta.averageSolvedSeconds || 0) % 60),
-            }))
-        : [];
-
-      const independentRatio = tg.solvedCount > 0
-        ? Math.round((tg.independentSolvedCount / tg.solvedCount) * 100)
-        : 0;
-
-      return {
-        tier: tg.tierGroup,
-        tierName: getTierGroupName(tg.tierGroup),
-        totalCount: tg.solvedCount,
-        independentSolvedCount: tg.independentSolvedCount,
-        independentRatio,
-        averageMinutes: Math.floor((tg.averageSolvedSeconds || 0) / 60),
-        averageSeconds: Math.floor((tg.averageSolvedSeconds || 0) % 60),
-        subTiers,
-      };
-    });
 
   if (loading) {
     return (
@@ -196,9 +130,11 @@ export function ProfilePage() {
           )}
           {activeTab === "stats" && (
             <>
-              <Styled.FullWidthSection>
-                <TierStatsChart tierGroupStats={tierGroupStats} />
-              </Styled.FullWidthSection>
+              {username && (
+                <Styled.FullWidthSection>
+                  <TierStatsChart memberName={username} />
+                </Styled.FullWidthSection>
+              )}
               {username && <SolveTrendsChart memberName={username} />}
             </>
           )}

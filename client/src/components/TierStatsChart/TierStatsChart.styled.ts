@@ -89,6 +89,14 @@ export const InsightText = styled.p`
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
+export const FilterRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing(2)};
+  margin-bottom: ${({ theme }) => theme.spacing(4)};
+`;
+
 export const TierSelector = styled.div`
   display: inline-flex;
   gap: 4px;
@@ -96,7 +104,6 @@ export const TierSelector = styled.div`
   background: ${({ theme }) => theme.colors.bg};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  margin-bottom: ${({ theme }) => theme.spacing(4)};
   flex-wrap: wrap;
 `;
 
@@ -120,5 +127,38 @@ export const TierButton = styled.button<{ active: boolean; tierColor: string }>`
       active ? theme.colors.bgSecondary : theme.colors.bgTertiary};
     color: ${({ active, tierColor, theme }) =>
       active ? tierColor : theme.colors.text};
+  }
+`;
+
+export const TagSelector = styled.div`
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: ${({ theme }) => theme.colors.bg};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  flex-wrap: wrap;
+`;
+
+export const TagButton = styled.button<{ active: boolean }>`
+  padding: 6px 12px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  border: 1px solid ${({ active, theme }) =>
+    active ? theme.colors.primary : "transparent"};
+  background: ${({ active, theme }) =>
+    active ? theme.colors.bgSecondary : "transparent"};
+  color: ${({ active, theme }) =>
+    active ? theme.colors.primary : theme.colors.textSecondary};
+  font-size: 0.75rem;
+  font-weight: ${({ active }) => (active ? "600" : "500")};
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    background: ${({ active, theme }) =>
+      active ? theme.colors.bgSecondary : theme.colors.bgTertiary};
+    color: ${({ active, theme }) =>
+      active ? theme.colors.primary : theme.colors.text};
   }
 `;

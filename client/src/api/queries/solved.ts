@@ -8,10 +8,10 @@ export const solvedQueryKeys = {
 		[...solvedQueryKeys.all, 'profile', name] as const,
 	recentSolveds: (name: string) =>
 		[...solvedQueryKeys.all, 'recentSolveds', name] as const,
-	tierGroupAverages: (name: string) =>
-		[...solvedQueryKeys.all, 'tierGroupAverages', name] as const,
-	tierAverages: (name: string) =>
-		[...solvedQueryKeys.all, 'tierAverages', name] as const,
+	tierGroupAverages: (name: string, tagKey?: string) =>
+		[...solvedQueryKeys.all, 'tierGroupAverages', name, tagKey] as const,
+	tierAverages: (name: string, tagKey?: string) =>
+		[...solvedQueryKeys.all, 'tierAverages', name, tagKey] as const,
 	solveTimeTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup, tagKey?: string) =>
 		[...solvedQueryKeys.all, 'solveTimeTrends', name, period, tierGroup, tagKey] as const,
 	independentSolveTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup, tagKey?: string) =>
@@ -33,16 +33,16 @@ export const solvedQueryOptions = {
 			queryFn: () => solvedApi.getRecentSolveds(name),
 			enabled: !!name,
 		}),
-	tierGroupAverages: (name: string) =>
+	tierGroupAverages: (name: string, tagKey?: string) =>
 		queryOptions({
-			queryKey: solvedQueryKeys.tierGroupAverages(name),
-			queryFn: () => solvedApi.getTierGroupAverages(name),
+			queryKey: solvedQueryKeys.tierGroupAverages(name, tagKey),
+			queryFn: () => solvedApi.getTierGroupAverages(name, tagKey),
 			enabled: !!name,
 		}),
-	tierAverages: (name: string) =>
+	tierAverages: (name: string, tagKey?: string) =>
 		queryOptions({
-			queryKey: solvedQueryKeys.tierAverages(name),
-			queryFn: () => solvedApi.getTierAverages(name),
+			queryKey: solvedQueryKeys.tierAverages(name, tagKey),
+			queryFn: () => solvedApi.getTierAverages(name, tagKey),
 			enabled: !!name,
 		}),
 	solveTimeTrends: (name: string, period: SolvedPeriod, tierGroup: TierGroup, tagKey?: string) =>

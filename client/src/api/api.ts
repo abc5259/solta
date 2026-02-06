@@ -20,21 +20,21 @@ export const solvedApi = {
     return response.data;
   },
 
-  async getTierGroupAverages(name: string): Promise<TierGroupAverage[]> {
+  async getTierGroupAverages(name: string, tagKey?: string): Promise<TierGroupAverage[]> {
     const response = await api.get<TierGroupAverage[]>(
       "/members/solveds/tier-group/average-time/search",
       {
-        params: { name },
+        params: { name, tagKey },
       }
     );
     return response.data;
   },
 
-  async getTierAverages(name: string): Promise<TierAverageMap> {
+  async getTierAverages(name: string, tagKey?: string): Promise<TierAverageMap> {
     const response = await api.get<TierAverageMap>(
       "/members/solveds/tier/average-time/search",
       {
-        params: { name },
+        params: { name, tagKey },
       }
     );
     return response.data;

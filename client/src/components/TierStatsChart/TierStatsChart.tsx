@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   ComposedChart,
   Bar,
@@ -10,11 +10,13 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { useQuery } from "@tanstack/react-query";
 import { Trophy } from "lucide-react";
 import { TIER_GROUP_COLORS } from "../../constants/tierColors";
 import formatSeconds from "../../utils/formatSeconds";
+import { solvedQueryOptions } from "../../api/queries/solved";
 import * as Styled from "./TierStatsChart.styled";
-import type { TierGroup } from "../../types/types";
+import type { TierGroup, TagKey } from "../../types/types";
 
 type SubTier = {
   level: string;
@@ -35,7 +37,7 @@ type TierGroupStat = {
 };
 
 type TierStatsChartProps = {
-  tierGroupStats: TierGroupStat[];
+  memberName: string;
 };
 
 const TIER_ORDER = ["BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "RUBY"];
@@ -49,8 +51,90 @@ const TIER_NAMES: Record<string, string> = {
   RUBY: "루비",
 };
 
-export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
+const TAG_OPTIONS: { value: TagKey | ""; label: string }[] = [
+  { value: "", label: "전체" },
+  { value: "MATH", label: "수학" },
+  { value: "IMPLEMENTATION", label: "구현" },
+  { value: "GREEDY", label: "그리디 알고리즘" },
+  { value: "STRING", label: "문자열" },
+  { value: "DATA_STRUCTURES", label: "자료 구조" },
+  { value: "GRAPHS", label: "그래프 이론" },
+  { value: "DP", label: "다이나믹 프로그래밍" },
+  { value: "GEOMETRY", label: "기하학" },
+  { value: "BINARY_SEARCH", label: "이분탐색" },
+];
+
+export function TierStatsChart({ memberName }: TierStatsChartProps) {
   const [selectedTier, setSelectedTier] = useState<string>("ALL");
+  const [selectedTag, setSelectedTag] = useState<TagKey | "">("");
+
+  const { data: tierGroupAverages = [], isLoading: isLoadingTierGroups } = useQuery(
+    solvedQueryOptions.tierGroupAverages(memberName, selectedTag || undefined)
+  );
+
+  const { data: tierAverages = null, isLoading: isLoadingTiers } = useQuery(
+    solvedQueryOptions.tierAverages(memberName, selectedTag || undefined)
+  );
+
+  // Helper functions for tier display
+  const getTierGroupName = (tierGroup: string): string => {
+    const names: Record<string, string> = {
+      BRONZE: "브론즈",
+      SILVER: "실버",
+      GOLD: "골드",
+      PLATINUM: "플래티넘",
+      DIAMOND: "다이아",
+      RUBY: "루비",
+    };
+    return names[tierGroup] || tierGroup;
+  };
+
+  const getTierDisplayName = (tier: string): string => {
+    const prefix = tier.charAt(0);
+    const level = tier.charAt(1);
+    const prefixMap: Record<string, string> = {
+      B: "브",
+      S: "실",
+      G: "골",
+      P: "플",
+      D: "다",
+      R: "루",
+    };
+    return prefixMap[prefix] + level;
+  };
+
+  // Transform API data for tier statistics display
+  const tierGroupStats: TierGroupStat[] = useMemo(() => {
+    return tierGroupAverages
+      .filter(tg => tg.tierGroup !== "UNRATED" && tg.tierGroup !== "NONE")
+      .map(tg => {
+        const subTiers = tierAverages && tierAverages[tg.tierGroup]
+          ? tierAverages[tg.tierGroup]
+              .filter(ta => ta.solvedCount > 0)
+              .map(ta => ({
+                level: getTierDisplayName(ta.tier),
+                count: ta.solvedCount,
+                minutes: Math.floor((ta.averageSolvedSeconds || 0) / 60),
+                seconds: Math.floor((ta.averageSolvedSeconds || 0) % 60),
+              }))
+          : [];
+
+        const independentRatio = tg.solvedCount > 0
+          ? Math.round((tg.independentSolvedCount / tg.solvedCount) * 100)
+          : 0;
+
+        return {
+          tier: tg.tierGroup,
+          tierName: getTierGroupName(tg.tierGroup),
+          totalCount: tg.solvedCount,
+          independentSolvedCount: tg.independentSolvedCount,
+          independentRatio,
+          averageMinutes: Math.floor((tg.averageSolvedSeconds || 0) / 60),
+          averageSeconds: Math.floor((tg.averageSolvedSeconds || 0) % 60),
+          subTiers,
+        };
+      });
+  }, [tierGroupAverages, tierAverages]);
 
   // Sort tier groups by tier order
   const sortedStats = [...tierGroupStats].sort((a, b) => {
@@ -129,6 +213,8 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
     return "꾸준히 문제를 풀고 있어요!";
   };
 
+  const loading = isLoadingTierGroups || isLoadingTiers;
+
   return (
     <Styled.ChartContainer>
       <Styled.ChartHeader>
@@ -149,25 +235,39 @@ export function TierStatsChart({ tierGroupStats }: TierStatsChartProps) {
         </Styled.IconWrapper>
       </Styled.ChartHeader>
 
-      <Styled.TierSelector>
-        <Styled.TierButton
-          active={selectedTier === "ALL"}
-          tierColor={TIER_GROUP_COLORS.NONE}
-          onClick={() => setSelectedTier("ALL")}
-        >
-          전체 ({sortedStats.reduce((sum, stat) => sum + stat.totalCount, 0)})
-        </Styled.TierButton>
-        {sortedStats.map((stat) => (
+      <Styled.FilterRow>
+        <Styled.TierSelector>
           <Styled.TierButton
-            key={stat.tier}
-            active={selectedTier === stat.tier}
-            tierColor={TIER_GROUP_COLORS[stat.tier as TierGroup]}
-            onClick={() => setSelectedTier(stat.tier)}
+            active={selectedTier === "ALL"}
+            tierColor={TIER_GROUP_COLORS.NONE}
+            onClick={() => setSelectedTier("ALL")}
           >
-            {TIER_NAMES[stat.tier]} ({stat.totalCount})
+            전체 ({sortedStats.reduce((sum, stat) => sum + stat.totalCount, 0)})
           </Styled.TierButton>
-        ))}
-      </Styled.TierSelector>
+          {sortedStats.map((stat) => (
+            <Styled.TierButton
+              key={stat.tier}
+              active={selectedTier === stat.tier}
+              tierColor={TIER_GROUP_COLORS[stat.tier as TierGroup]}
+              onClick={() => setSelectedTier(stat.tier)}
+            >
+              {TIER_NAMES[stat.tier]} ({stat.totalCount})
+            </Styled.TierButton>
+          ))}
+        </Styled.TierSelector>
+
+        <Styled.TagSelector>
+          {TAG_OPTIONS.map((option) => (
+            <Styled.TagButton
+              key={option.value || "all"}
+              active={selectedTag === option.value}
+              onClick={() => setSelectedTag(option.value)}
+            >
+              {option.label}
+            </Styled.TagButton>
+          ))}
+        </Styled.TagSelector>
+      </Styled.FilterRow>
 
       <Styled.StatsRow>
         <Styled.CurrentRatio>
