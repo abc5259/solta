@@ -9,9 +9,10 @@ type SortOption = "LATEST" | "TIER" | "SOLVE_TIME";
 
 interface RetryListCardProps {
   memberName: string;
+  onProblemClick?: (bojProblemId: number) => void;
 }
 
-export function RetryListCard({ memberName }: RetryListCardProps) {
+export function RetryListCard({ memberName, onProblemClick }: RetryListCardProps) {
   const [sortBy, setSortBy] = useState<SortOption>("LATEST");
 
   const { data: retryProblems = [], isLoading, refetch } = useQuery(
@@ -84,6 +85,7 @@ export function RetryListCard({ memberName }: RetryListCardProps) {
               solved={solved}
               showSolveType={false}
               showDate={false}
+              onProblemClick={onProblemClick}
             />
           ))
         ) : (

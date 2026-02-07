@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { ExternalLink, Clock, Tag } from "lucide-react";
 import { getTierGroupFromTier, TIER_GROUP_COLORS, hslToRgb } from "../../constants/tierColors";
 import formatSeconds from "../../utils/formatSeconds";
@@ -8,6 +9,7 @@ interface SolvedItemProps {
   solved: RecentSolvedResponse;
   showSolveType?: boolean;
   showDate?: boolean;
+  onProblemClick?: (bojProblemId: number) => void;
 }
 
 function formatDate(dateString?: string): string {
@@ -25,16 +27,31 @@ function formatDate(dateString?: string): string {
   return `${Math.floor(diffDays / 365)}년 전`;
 }
 
-export function SolvedItem({ solved, showSolveType = false, showDate = false }: SolvedItemProps) {
+export function SolvedItem({ solved, showSolveType = false, showDate = false, onProblemClick }: SolvedItemProps) {
+  const navigate = useNavigate();
   const tierGroup = getTierGroupFromTier(solved.problem.tier);
   const tierColor = hslToRgb(TIER_GROUP_COLORS[tierGroup]);
 
+  const handleClick = () => {
+    if (onProblemClick) {
+      onProblemClick(solved.problem.bojProblemId);
+    } else {
+      const id = solved.problem.bojProblemId;
+      navigate(`/problems?q=${id}&select=${id}`);
+    }
+  };
+
+  const handleExternalClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(
+      `https://www.acmicpc.net/problem/${solved.problem.bojProblemId}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   return (
-    <Styled.Container
-      href={`https://www.acmicpc.net/problem/${solved.problem.bojProblemId}`}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <Styled.Container onClick={handleClick}>
       <Styled.TierBar color={tierColor} />
 
       <Styled.ProblemInfo>
@@ -68,7 +85,7 @@ export function SolvedItem({ solved, showSolveType = false, showDate = false }: 
         </Styled.SolveTypeBadge>
       )}
 
-      <Styled.ExternalLinkIcon>
+      <Styled.ExternalLinkIcon onClick={handleExternalClick}>
         <ExternalLink size={16} />
       </Styled.ExternalLinkIcon>
     </Styled.Container>

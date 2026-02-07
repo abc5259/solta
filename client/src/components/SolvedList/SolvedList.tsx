@@ -6,9 +6,10 @@ import type { RecentSolvedResponse } from "../../types/api";
 
 type SolvedListProps = {
   solveds: RecentSolvedResponse[];
+  onProblemClick?: (bojProblemId: number) => void;
 };
 
-export function SolvedList({ solveds }: SolvedListProps) {
+export function SolvedList({ solveds, onProblemClick }: SolvedListProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const displayProblems = isExpanded ? solveds : solveds.slice(0, 10);
@@ -36,6 +37,7 @@ export function SolvedList({ solveds }: SolvedListProps) {
             solved={solved}
             showSolveType={true}
             showDate={true}
+            onProblemClick={onProblemClick}
           />
         ))}
       </Styled.SolvedCardsContainer>

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import type { SolveType } from "../../types/types";
 
-export const Container = styled.a`
+export const Container = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing(3)};
@@ -12,6 +12,7 @@ export const Container = styled.a`
   transition: all 0.2s ease;
   text-decoration: none;
   position: relative;
+  cursor: pointer;
 
   &:hover {
     background: ${({ theme }) => theme.colors.bgTertiary};

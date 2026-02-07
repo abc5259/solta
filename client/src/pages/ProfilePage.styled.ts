@@ -300,3 +300,75 @@ export const SubTierTime = styled.div`
   align-items: center;
   gap: 4px;
 `;
+
+// Problem Detail Drawer
+export const DrawerOverlay = styled.div<{ $open: boolean }>`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  opacity: ${({ $open }) => ($open ? 1 : 0)};
+  pointer-events: ${({ $open }) => ($open ? "auto" : "none")};
+  transition: opacity 0.25s ease;
+`;
+
+export const DrawerPanel = styled.div<{ $open: boolean }>`
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100vh;
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-left: 1px solid ${({ theme }) => theme.colors.border};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
+  z-index: 201;
+  transform: translateX(${({ $open }) => ($open ? "0" : "100%")});
+  transition: transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const DrawerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${({ theme }) => theme.spacing(4)} ${({ theme }) => theme.spacing(5)};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+`;
+
+export const DrawerTitle = styled.span`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const DrawerClose = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing(1)};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  display: flex;
+  align-items: center;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.bgTertiary};
+    color: ${({ theme }) => theme.colors.text};
+  }
+`;
+
+export const DrawerBody = styled.div`
+  flex: 1;
+  overflow-y: auto;
+`;
+
+export const DrawerLoading = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: 0.9rem;
+`;
