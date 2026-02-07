@@ -6,6 +6,8 @@ import type {
   MemberProfileResponse,
   SolveTimeTrendsResponse,
   IndependentSolveTrendsResponse,
+  ProblemSearchResponse,
+  ProblemDetailResponse,
 } from "../types/api";
 import type { SolvedPeriod, TierGroup } from "../types/types";
 
@@ -89,6 +91,31 @@ export const solvedApi = {
       {
         params: { name, sortType },
       }
+    );
+    return response.data;
+  },
+};
+
+export const problemApi = {
+  async searchProblems(
+    query?: string,
+    lastBojProblemId?: number | null
+  ): Promise<ProblemSearchResponse> {
+    const response = await api.get<ProblemSearchResponse>(
+      "/problems/search",
+      {
+        params: {
+          query: query || undefined,
+          lastBojProblemId: lastBojProblemId ?? undefined,
+        },
+      }
+    );
+    return response.data;
+  },
+
+  async getProblemDetail(bojProblemId: number): Promise<ProblemDetailResponse> {
+    const response = await api.get<ProblemDetailResponse>(
+      `/problems/${bojProblemId}`
     );
     return response.data;
   },

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const HeaderContainer = styled.header`
@@ -101,10 +102,12 @@ const SearchIcon = styled.div`
 `;
 
 export function Header() {
+	const navigate = useNavigate();
+
 	return (
 		<HeaderContainer>
 			<HeaderContent>
-				<LogoSection>
+				<LogoSection onClick={() => navigate('/')}>
 					<LogoIcon>
 						<Bar height={16} />
 						<Bar height={24} />
@@ -119,6 +122,8 @@ export function Header() {
 						<SearchInput
 							type="text"
 							placeholder="백준 아이디 또는 문제 번호 검색..."
+							onFocus={() => navigate('/problems')}
+							readOnly
 						/>
 					</SearchContainer>
 				</SearchSection>

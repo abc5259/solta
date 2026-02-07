@@ -70,3 +70,30 @@ export interface IndependentSolveTrendsResponse {
   totalTotalCount: number;
   trends: IndependentRatioPoint[];
 }
+
+// 문제 검색 관련 타입
+export interface ProblemSearchItem {
+  problemId: number;
+  bojProblemId: number;
+  title: string;
+  tier: Tier;
+  tags: string[];
+}
+
+export interface ProblemSearchResponse {
+  problems: ProblemSearchItem[];
+  nextLastBojProblemId: number | null;
+  hasNext: boolean;
+}
+
+export interface ProblemDetailResponse {
+  problemId: number;
+  bojProblemId: number;
+  title: string;
+  tier: Tier;
+  tags: string[];
+  totalSolvedCount: number;
+  independentSolvedCount: number;
+  averageSolveTimeSeconds: number | null;
+  shortestSolveTimeSeconds: number | null;
+}
