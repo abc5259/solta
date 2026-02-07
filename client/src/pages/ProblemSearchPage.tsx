@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Search, ArrowLeft } from "lucide-react";
 import { problemApi } from "../api/api";
@@ -10,9 +10,13 @@ import * as Styled from "./ProblemSearchPage.styled";
 
 export default function ProblemSearchPage() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const selectParam = searchParams.get("select");
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [debouncedQuery, setDebouncedQuery] = useState(searchParams.get("q") ?? "");
   const [selectedProblem, setSelectedProblem] = useState<ProblemSearchItem | null>(null);
+  const autoSelectedRef = useRef(false);
+  const prevQueryRef = useRef(debouncedQuery);
   const listRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<HTMLDivElement>(null);
 
@@ -24,9 +28,12 @@ export default function ProblemSearchPage() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Reset selection when query changes
+  // Reset selection only when user actually changes the query
   useEffect(() => {
-    setSelectedProblem(null);
+    if (prevQueryRef.current !== debouncedQuery) {
+      setSelectedProblem(null);
+      prevQueryRef.current = debouncedQuery;
+    }
   }, [debouncedQuery]);
 
   // Infinite scroll query for problem list
@@ -82,6 +89,22 @@ export default function ProblemSearchPage() {
   const allProblems = data?.pages.flatMap((page) => page.problems) ?? [];
   const totalCount = allProblems.length;
 
+  // Auto-select problem from URL param (once)
+  useEffect(() => {
+    if (!selectParam || autoSelectedRef.current || allProblems.length === 0) return;
+    const target = allProblems.find(
+      (p) => p.bojProblemId === Number(selectParam)
+    );
+    if (target) {
+      setSelectedProblem(target);
+      autoSelectedRef.current = true;
+      setTimeout(() => {
+        const el = document.getElementById(`problem-${target.problemId}`);
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  }, [selectParam, allProblems]);
+
   return (
     <Styled.PageContainer>
       {/* Search Header */}
@@ -128,12 +151,13 @@ export default function ProblemSearchPage() {
             ) : (
               <Styled.ProblemListInner>
                 {allProblems.map((problem) => (
-                  <ProblemCard
-                    key={problem.problemId}
-                    problem={problem}
-                    isSelected={selectedProblem?.problemId === problem.problemId}
-                    onClick={() => setSelectedProblem(problem)}
-                  />
+                  <div key={problem.problemId} id={`problem-${problem.problemId}`}>
+                    <ProblemCard
+                      problem={problem}
+                      isSelected={selectedProblem?.problemId === problem.problemId}
+                      onClick={() => setSelectedProblem(problem)}
+                    />
+                  </div>
                 ))}
                 <div ref={observerRef}>
                   {isFetchingNextPage && (

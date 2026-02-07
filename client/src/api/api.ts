@@ -8,6 +8,7 @@ import type {
   IndependentSolveTrendsResponse,
   ProblemSearchResponse,
   ProblemDetailResponse,
+  MemberSearchResponse,
 } from "../types/api";
 import type { SolvedPeriod, TierGroup } from "../types/types";
 
@@ -90,6 +91,18 @@ export const solvedApi = {
       "/members/solveds/retry/search",
       {
         params: { name, sortType },
+      }
+    );
+    return response.data;
+  },
+};
+
+export const memberApi = {
+  async searchMembers(query?: string): Promise<MemberSearchResponse> {
+    const response = await api.get<MemberSearchResponse>(
+      "/members/search",
+      {
+        params: { query: query || undefined },
       }
     );
     return response.data;

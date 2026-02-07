@@ -97,3 +97,16 @@ export interface ProblemDetailResponse {
   averageSolveTimeSeconds: number | null;
   shortestSolveTimeSeconds: number | null;
 }
+
+// 사용자 검색 관련 타입
+export interface MemberSearchItem {
+  memberId: number;
+  name: string;
+  avatarUrl: string;
+}
+
+export interface MemberSearchResponse {
+  members: MemberSearchItem[];
+  nextLastMemberId: number | null;
+  hasNext: boolean;
+}
