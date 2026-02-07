@@ -2,6 +2,7 @@ import type { TierGroup } from "../types/types";
 
 export const TIER_GROUP_COLORS: Record<TierGroup, string> = {
   NONE: "hsl(142, 76%, 45%)",
+  UNRATED: "hsl(0, 0%, 50%)",
   BRONZE: "hsl(30, 70%, 45%)",
   SILVER: "hsl(210, 15%, 60%)",
   GOLD: "hsl(45, 100%, 50%)",

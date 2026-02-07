@@ -25,7 +25,7 @@ export const UserInfo = styled.div`
   gap: ${({ theme }) => theme.spacing(4)};
 `;
 
-export const UserIcon = styled.div`
+export const UserIcon = styled.img`
   width: 72px;
   height: 72px;
   background: ${({ theme }) => theme.colors.primary};

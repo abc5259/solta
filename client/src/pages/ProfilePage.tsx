@@ -77,7 +77,7 @@ export function ProfilePage() {
       <Styled.ProfileContainer>
         <Styled.UserSection>
           <Styled.UserInfo>
-            <Styled.UserIcon>{username.charAt(0).toUpperCase()}</Styled.UserIcon>
+            <Styled.UserIcon src={profile?.avatarUrl} />
             <Styled.UserDetails>
               <Styled.UserHeader>
                 <Styled.UserId>{username}</Styled.UserId>
