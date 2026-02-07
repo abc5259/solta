@@ -4,7 +4,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: ${({ theme }) => theme.spacing(6)};
+  padding: ${({ theme }) => theme.spacing(8)} ${({ theme }) => theme.spacing(10)};
   overflow-y: auto;
 `;
 

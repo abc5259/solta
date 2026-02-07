@@ -2,8 +2,35 @@ import styled from "styled-components";
 
 export const PageContainer = styled.div`
   display: flex;
-  height: calc(100vh - 65px);
+  flex-direction: column;
+  height: 100vh;
   background: ${({ theme }) => theme.colors.bg};
+`;
+
+export const SearchHeader = styled.header`
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  padding: ${({ theme }) => theme.spacing(4)} ${({ theme }) => theme.spacing(6)};
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const SearchHeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing(3)};
+  width: 100%;
+  max-width: 780px;
+`;
+
+export const ContentArea = styled.div`
+  flex: 1;
+  display: flex;
+  min-height: 0;
 `;
 
 // Left: Search + List
@@ -13,14 +40,6 @@ export const ListSection = styled.div`
   flex-direction: column;
   min-width: 0;
   border-right: 1px solid ${({ theme }) => theme.colors.border};
-`;
-
-export const SearchBar = styled.div`
-  padding: ${({ theme }) => theme.spacing(4)} ${({ theme }) => theme.spacing(5)};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing(3)};
 `;
 
 export const BackButton = styled.button`
@@ -83,12 +102,24 @@ export const ResultCount = styled.div`
   font-size: 0.8rem;
   color: ${({ theme }) => theme.colors.textMuted};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
 `;
 
 export const ProblemList = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: ${({ theme }) => theme.spacing(3)} ${({ theme }) => theme.spacing(5)};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing(2)};
+`;
+
+export const ProblemListInner = styled.div`
+  width: 100%;
+  max-width: 720px;
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing(2)};
@@ -123,7 +154,7 @@ export const EmptyState = styled.div`
 
 // Right: Detail panel
 export const DetailSection = styled.div`
-  width: 380px;
+  width: 420px;
   flex-shrink: 0;
   background: ${({ theme }) => theme.colors.bgSecondary};
   overflow-y: auto;

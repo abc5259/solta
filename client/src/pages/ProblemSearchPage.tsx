@@ -84,9 +84,9 @@ export default function ProblemSearchPage() {
 
   return (
     <Styled.PageContainer>
-      {/* Left: Search + Problem List */}
-      <Styled.ListSection>
-        <Styled.SearchBar>
+      {/* Search Header */}
+      <Styled.SearchHeader>
+        <Styled.SearchHeaderContent>
           <Styled.BackButton onClick={() => navigate(-1)}>
             <ArrowLeft size={20} />
           </Styled.BackButton>
@@ -96,67 +96,73 @@ export default function ProblemSearchPage() {
             </Styled.SearchIcon>
             <Styled.SearchInput
               type="text"
-              placeholder="문제 번호 또는 제목으로 검색..."
+              placeholder="문제 번호로 검색..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               autoFocus
             />
           </Styled.SearchInputWrapper>
-        </Styled.SearchBar>
+        </Styled.SearchHeaderContent>
+      </Styled.SearchHeader>
 
-        {!isLoading && (
-          <Styled.ResultCount>
-            {debouncedQuery
-              ? `"${debouncedQuery}" 검색 결과 ${totalCount}개${hasNextPage ? "+" : ""} 문제`
-              : `전체 ${totalCount}개${hasNextPage ? "+" : ""} 문제`}
-          </Styled.ResultCount>
-        )}
-
-        <Styled.ProblemList ref={listRef}>
-          {isLoading ? (
-            <Styled.LoadingSpinner>문제를 불러오는 중...</Styled.LoadingSpinner>
-          ) : allProblems.length === 0 ? (
-            <Styled.EmptyState>
-              <Search size={40} />
-              <p>검색 결과가 없습니다</p>
-            </Styled.EmptyState>
-          ) : (
-            <>
-              {allProblems.map((problem) => (
-                <ProblemCard
-                  key={problem.problemId}
-                  problem={problem}
-                  isSelected={selectedProblem?.problemId === problem.problemId}
-                  onClick={() => setSelectedProblem(problem)}
-                />
-              ))}
-              <div ref={observerRef}>
-                {isFetchingNextPage && (
-                  <Styled.LoadMoreTrigger>더 불러오는 중...</Styled.LoadMoreTrigger>
-                )}
-              </div>
-            </>
+      {/* Content */}
+      <Styled.ContentArea>
+        {/* Left: Problem List */}
+        <Styled.ListSection>
+          {!isLoading && (
+            <Styled.ResultCount>
+              {debouncedQuery
+                ? `"${debouncedQuery}" 검색 결과 ${totalCount}개${hasNextPage ? "+" : ""} 문제`
+                : `전체 ${totalCount}개${hasNextPage ? "+" : ""} 문제`}
+            </Styled.ResultCount>
           )}
-        </Styled.ProblemList>
-      </Styled.ListSection>
 
-      {/* Right: Detail Panel */}
-      <Styled.DetailSection>
-        {selectedProblem ? (
-          isDetailLoading ? (
-            <Styled.DetailLoading>불러오는 중...</Styled.DetailLoading>
-          ) : detail ? (
-            <ProblemDetailPanel detail={detail} />
-          ) : null
-        ) : (
-          <Styled.DetailPlaceholder>
-            <Styled.DetailPlaceholderIcon>
-              <Search size={48} />
-            </Styled.DetailPlaceholderIcon>
-            <p>문제를 선택하면 상세 정보가 표시됩니다</p>
-          </Styled.DetailPlaceholder>
-        )}
-      </Styled.DetailSection>
+          <Styled.ProblemList ref={listRef}>
+            {isLoading ? (
+              <Styled.LoadingSpinner>문제를 불러오는 중...</Styled.LoadingSpinner>
+            ) : allProblems.length === 0 ? (
+              <Styled.EmptyState>
+                <Search size={40} />
+                <p>검색 결과가 없습니다</p>
+              </Styled.EmptyState>
+            ) : (
+              <Styled.ProblemListInner>
+                {allProblems.map((problem) => (
+                  <ProblemCard
+                    key={problem.problemId}
+                    problem={problem}
+                    isSelected={selectedProblem?.problemId === problem.problemId}
+                    onClick={() => setSelectedProblem(problem)}
+                  />
+                ))}
+                <div ref={observerRef}>
+                  {isFetchingNextPage && (
+                    <Styled.LoadMoreTrigger>더 불러오는 중...</Styled.LoadMoreTrigger>
+                  )}
+                </div>
+              </Styled.ProblemListInner>
+            )}
+          </Styled.ProblemList>
+        </Styled.ListSection>
+
+        {/* Right: Detail Panel */}
+        <Styled.DetailSection>
+          {selectedProblem ? (
+            isDetailLoading ? (
+              <Styled.DetailLoading>불러오는 중...</Styled.DetailLoading>
+            ) : detail ? (
+              <ProblemDetailPanel detail={detail} />
+            ) : null
+          ) : (
+            <Styled.DetailPlaceholder>
+              <Styled.DetailPlaceholderIcon>
+                <Search size={48} />
+              </Styled.DetailPlaceholderIcon>
+              <p>문제를 선택하면 상세 정보가 표시됩니다</p>
+            </Styled.DetailPlaceholder>
+          )}
+        </Styled.DetailSection>
+      </Styled.ContentArea>
     </Styled.PageContainer>
   );
 }
