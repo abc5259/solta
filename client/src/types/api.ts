@@ -110,3 +110,16 @@ export interface MemberSearchResponse {
   nextLastMemberId: number | null;
   hasNext: boolean;
 }
+
+// Auth 관련 타입
+export interface OAuthLoginResponse {
+  url: string;
+}
+
+export interface AuthMeResponse {
+  id: number;
+  name: string;
+  githubId: string;
+  bojId: string;
+  avatarUrl: string;
+}

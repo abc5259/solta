@@ -4,10 +4,11 @@ import HomePage from './pages/HomePage';
 import StatsPage from './pages/StatsPage';
 import ProfilePage from './pages/ProfilePage';
 import ProblemSearchPage from './pages/ProblemSearchPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 
 function AppContent() {
 	const location = useLocation();
-	const hideHeader = location.pathname === '/problems';
+	const hideHeader = location.pathname === '/problems' || location.pathname === '/login/success';
 
 	return (
 		<>
@@ -17,6 +18,7 @@ function AppContent() {
 				<Route path="/stats" element={<StatsPage />} />
 				<Route path="/profile/:username" element={<ProfilePage />} />
 				<Route path="/problems" element={<ProblemSearchPage />} />
+				<Route path="/login/success" element={<AuthCallbackPage />} />
 			</Routes>
 		</>
 	);

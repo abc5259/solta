@@ -9,6 +9,8 @@ import type {
   ProblemSearchResponse,
   ProblemDetailResponse,
   MemberSearchResponse,
+  OAuthLoginResponse,
+  AuthMeResponse,
 } from "../types/api";
 import type { SolvedPeriod, TierGroup } from "../types/types";
 
@@ -105,6 +107,23 @@ export const memberApi = {
         params: { query: query || undefined },
       }
     );
+    return response.data;
+  },
+};
+
+export const authApi = {
+  async getGithubLoginUrl(): Promise<OAuthLoginResponse> {
+    const response = await api.get<OAuthLoginResponse>(
+      "/auth/oauth/github/login",
+      {
+        params: { client: "WEB" },
+      }
+    );
+    return response.data;
+  },
+
+  async getMe(): Promise<AuthMeResponse> {
+    const response = await api.get<AuthMeResponse>("/members/me");
     return response.data;
   },
 };

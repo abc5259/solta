@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, User } from 'lucide-react';
+import { Search, User, Github, LogOut, ChevronDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { memberApi, problemApi } from '../api/api';
+import { memberApi, problemApi, authApi } from '../api/api';
 import { getTierGroupFromTier, TIER_GROUP_COLORS, hslToRgb } from '../constants/tierColors';
+import { useAuth } from '../context/AuthContext';
 
 const HeaderContainer = styled.header`
 	background: ${({ theme }) => theme.colors.bgSecondary};
@@ -217,12 +218,110 @@ const NoResult = styled.div`
 	text-align: center;
 `;
 
+const AuthSection = styled.div`
+	position: absolute;
+	right: ${({ theme }) => theme.spacing(4)};
+	display: flex;
+	align-items: center;
+	z-index: 10;
+`;
+
+const LoginButton = styled.button`
+	display: flex;
+	align-items: center;
+	gap: ${({ theme }) => theme.spacing(2)};
+	padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(4)};
+	border: 1px solid ${({ theme }) => theme.colors.border};
+	border-radius: ${({ theme }) => theme.borderRadius.sm};
+	background: ${({ theme }) => theme.colors.bgTertiary};
+	color: ${({ theme }) => theme.colors.text};
+	font-size: 0.85rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: ${({ theme }) => theme.colors.border};
+	}
+`;
+
+const UserMenuContainer = styled.div`
+	position: relative;
+`;
+
+const UserMenuButton = styled.button`
+	display: flex;
+	align-items: center;
+	gap: ${({ theme }) => theme.spacing(2)};
+	padding: ${({ theme }) => theme.spacing(1.5)} ${({ theme }) => theme.spacing(3)};
+	border: 1px solid ${({ theme }) => theme.colors.border};
+	border-radius: ${({ theme }) => theme.borderRadius.sm};
+	background: transparent;
+	color: ${({ theme }) => theme.colors.text};
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: ${({ theme }) => theme.colors.bgTertiary};
+	}
+`;
+
+const UserAvatar = styled.img`
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	object-fit: cover;
+`;
+
+const UserName = styled.span`
+	font-size: 0.85rem;
+	font-weight: 500;
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+`;
+
+const UserDropdown = styled.div`
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	min-width: 160px;
+	background: ${({ theme }) => theme.colors.bgSecondary};
+	border: 1px solid ${({ theme }) => theme.colors.border};
+	border-radius: ${({ theme }) => theme.borderRadius.sm};
+	box-shadow: ${({ theme }) => theme.shadows.lg};
+	z-index: 300;
+	overflow: hidden;
+`;
+
+const UserDropdownItem = styled.button`
+	display: flex;
+	align-items: center;
+	gap: ${({ theme }) => theme.spacing(2)};
+	width: 100%;
+	padding: ${({ theme }) => theme.spacing(2.5)} ${({ theme }) => theme.spacing(4)};
+	border: none;
+	background: transparent;
+	color: ${({ theme }) => theme.colors.text};
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: background 0.15s ease;
+
+	&:hover {
+		background: ${({ theme }) => theme.colors.bgTertiary};
+	}
+`;
+
 export function Header() {
 	const navigate = useNavigate();
+	const { user, isLoggedIn, logout } = useAuth();
 	const [query, setQuery] = useState('');
 	const [debouncedQuery, setDebouncedQuery] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
+	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const userMenuRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		const timer = setTimeout(() => setDebouncedQuery(query), 300);
@@ -250,6 +349,27 @@ export function Header() {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
+
+	useEffect(() => {
+		const handleClickOutside = (e: MouseEvent) => {
+			if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+				setIsUserMenuOpen(false);
+			}
+		};
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
+
+	const handleLogin = async () => {
+		const { url } = await authApi.getGithubLoginUrl();
+		window.location.href = url;
+	};
+
+	const handleLogout = () => {
+		logout();
+		setIsUserMenuOpen(false);
+		navigate('/');
+	};
 
 	const members = memberData?.members ?? [];
 	const problems = problemData?.problems?.slice(0, 5) ?? [];
@@ -350,6 +470,39 @@ export function Header() {
 						</Dropdown>
 					)}
 				</SearchSection>
+
+				<AuthSection>
+					{isLoggedIn ? (
+						<UserMenuContainer ref={userMenuRef}>
+							<UserMenuButton onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+								{user?.avatarUrl ? (
+									<UserAvatar src={user.avatarUrl} alt={user.name} />
+								) : (
+									<User size={20} />
+								)}
+								<UserName>{user?.name}</UserName>
+								<ChevronDown size={14} />
+							</UserMenuButton>
+							{isUserMenuOpen && (
+								<UserDropdown>
+									<UserDropdownItem onClick={() => { navigate(`/profile/${user?.name}`); setIsUserMenuOpen(false); }}>
+										<User size={14} />
+										내 프로필
+									</UserDropdownItem>
+									<UserDropdownItem onClick={handleLogout}>
+										<LogOut size={14} />
+										로그아웃
+									</UserDropdownItem>
+								</UserDropdown>
+							)}
+						</UserMenuContainer>
+					) : (
+						<LoginButton onClick={handleLogin}>
+							<Github size={16} />
+							GitHub 로그인
+						</LoginButton>
+					)}
+				</AuthSection>
 			</HeaderContent>
 		</HeaderContainer>
 	);
