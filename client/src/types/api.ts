@@ -14,7 +14,7 @@ export interface ProblemDetail {
 export interface RecentSolvedResponse {
   solvedId: number;
   solveType: SolveType;
-  solveTimeSeconds: number;
+  solveTimeSeconds: number | null;
   problem: ProblemDetail;
   createdAt: string;
 }
@@ -30,6 +30,7 @@ export interface TierAverage {
   tier: Tier;
   averageSolvedSeconds: number | null;
   solvedCount: number;
+  independentCount: number;
 }
 
 export type TierAverageMap = Record<TierGroup, TierAverage[]>;

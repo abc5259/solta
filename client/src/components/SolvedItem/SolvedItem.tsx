@@ -62,10 +62,12 @@ export function SolvedItem({ solved, showSolveType = false, showDate = false, on
 
         <Styled.ProblemMeta>
           <Styled.TierText color={tierColor}>{solved.problem.tier}</Styled.TierText>
-          <Styled.MetaItem>
-            <Clock size={12} />
-            {formatSeconds(solved.solveTimeSeconds)}
-          </Styled.MetaItem>
+          {solved.solveTimeSeconds != null && (
+            <Styled.MetaItem>
+              <Clock size={12} />
+              {formatSeconds(solved.solveTimeSeconds)}
+            </Styled.MetaItem>
+          )}
           {solved.problem.tags.length > 0 && (
             <Styled.MetaItem>
               <Tag size={12} />

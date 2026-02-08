@@ -23,6 +23,7 @@ type SubTier = {
   count: number;
   minutes: number;
   seconds: number;
+  independentRatio: number;
 };
 
 type TierGroupStat = {
@@ -116,6 +117,9 @@ export function TierStatsChart({ memberName }: TierStatsChartProps) {
                 count: ta.solvedCount,
                 minutes: Math.floor((ta.averageSolvedSeconds || 0) / 60),
                 seconds: Math.floor((ta.averageSolvedSeconds || 0) % 60),
+                independentRatio: ta.independentCount > 0
+                  ? Math.round((ta.independentCount / ta.solvedCount) * 100)
+                  : 0,
               }))
           : [];
 
@@ -160,7 +164,7 @@ export function TierStatsChart({ memberName }: TierStatsChartProps) {
           averageTime: subTier.minutes * 60 + subTier.seconds,
           tier: tierGroup.tier,
           count: subTier.count,
-          independentRatio: tierGroup.independentRatio,
+          independentRatio: subTier.independentRatio,
         }))
       )
     : selectedTierData
@@ -169,7 +173,7 @@ export function TierStatsChart({ memberName }: TierStatsChartProps) {
         averageTime: subTier.minutes * 60 + subTier.seconds,
         tier: selectedTierData.tier,
         count: subTier.count,
-        independentRatio: selectedTierData.independentRatio,
+        independentRatio: subTier.independentRatio,
       }))
     : [];
 
